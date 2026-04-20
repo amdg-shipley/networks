@@ -1,0 +1,366 @@
+/* ── SVG Canvas ──────────────────────────────────────────── */
+.sim-svg {
+  width: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* ── Edges / wires ──────────────────────────────────────── */
+.edge {
+  stroke: var(--gray-muted);
+  stroke-linecap: round;
+  fill: none;
+  transition: stroke 0.3s;
+}
+
+.edge--active   { stroke: var(--green); }
+.edge--inactive { stroke: var(--gray-muted); }
+.edge--retrans  { stroke: var(--red); stroke-dasharray: 6 4; }
+.edge--low      { stroke-width: 1.5; }
+.edge--medium   { stroke-width: 2.5; }
+.edge--high     { stroke-width: 4; }
+
+.edge-hit-area {
+  stroke: transparent;
+  stroke-width: 16;
+  fill: none;
+  cursor: pointer;
+}
+
+/* Wire glow — applied briefly during L1 bit=1 transmission */
+.wire--glow {
+  stroke: var(--green);
+  filter: drop-shadow(0 0 4px var(--green));
+  transition: stroke 0.08s, filter 0.08s;
+}
+
+/* ── Nodes ───────────────────────────────────────────────── */
+.node-group { cursor: pointer; }
+
+/* Circle (end device) */
+.node-circle {
+  fill: #1a2035;
+  stroke: var(--blue);
+  stroke-width: 2;
+  transition: stroke 0.3s, fill 0.3s;
+  r: 26;
+}
+
+/* Hexagon (router) */
+.node-hex {
+  fill: #1a2035;
+  stroke: var(--blue);
+  stroke-width: 2;
+  transition: stroke 0.3s, fill 0.3s;
+}
+
+/* Diamond (DNS) */
+.node-diamond {
+  fill: #1a2035;
+  stroke: var(--blue);
+  stroke-width: 2;
+  transition: stroke 0.3s, fill 0.3s;
+}
+
+/* Rectangle (web server) */
+.node-rect {
+  fill: #1a2035;
+  stroke: var(--blue);
+  stroke-width: 2;
+  transition: stroke 0.3s, fill 0.3s;
+  rx: 5;
+}
+
+/* Active state */
+.node-group.node--active .node-circle,
+.node-group.node--active .node-hex,
+.node-group.node--active .node-diamond,
+.node-group.node--active .node-rect {
+  stroke: var(--green);
+  filter: drop-shadow(0 0 6px var(--green));
+}
+
+/* Killed state */
+.node-group.node--killed .node-circle,
+.node-group.node--killed .node-hex,
+.node-group.node--killed .node-diamond,
+.node-group.node--killed .node-rect {
+  fill: #2a0a10;
+  stroke: var(--red);
+}
+
+.node-group.node--killed .node-label {
+  fill: var(--red);
+}
+
+/* Kill X overlay */
+.node-kill-x {
+  stroke: var(--red);
+  stroke-width: 2.5;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.node-group.node--killed .node-kill-x { opacity: 1; }
+
+/* Highlight (SPOF) */
+.node-group.node--spof .node-circle,
+.node-group.node--spof .node-hex {
+  stroke: var(--amber);
+  filter: drop-shadow(0 0 8px var(--amber));
+}
+
+/* Pulse animation for active nodes */
+@keyframes node-pulse {
+  0%   { opacity: 0.6; r: 30; }
+  100% { opacity: 0;   r: 42; }
+}
+
+.node-pulse-ring {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 1.5;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.node-group.node--active .node-pulse-ring {
+  animation: node-pulse 1.8s ease-out infinite;
+}
+
+/* Node labels */
+.node-label {
+  fill: var(--text);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.node-sublabel {
+  fill: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Packets ──────────────────────────────────────────────── */
+.packet {
+  rx: 3;
+  width: 24px;
+  height: 24px;
+  transition: fill 0.1s;
+  pointer-events: none;
+}
+
+.packet--blue   { fill: var(--blue);  filter: drop-shadow(0 0 4px var(--blue)); }
+.packet--green  { fill: var(--green); filter: drop-shadow(0 0 4px var(--green)); }
+.packet--red    { fill: var(--red);   filter: drop-shadow(0 0 4px var(--red)); }
+.packet--yellow { fill: var(--yellow); filter: drop-shadow(0 0 4px var(--yellow)); }
+
+.packet-label {
+  fill: #0a0e1a;
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Drop X animation */
+@keyframes packet-drop {
+  0%   { opacity: 1; transform: scale(1); }
+  50%  { opacity: 1; transform: scale(1.4); }
+  100% { opacity: 0; transform: scale(0.5); }
+}
+
+.packet-drop {
+  animation: packet-drop 0.45s ease-out forwards;
+}
+
+/* ── Flow dots on edges (L6) ────────────────────────────── */
+@keyframes flow-dot {
+  from { stroke-dashoffset: 20; }
+  to   { stroke-dashoffset: 0; }
+}
+
+.edge--flowing {
+  stroke-dasharray: 4 16;
+  animation: flow-dot 0.6s linear infinite;
+}
+
+/* ── Handshake callout overlay ──────────────────────────── */
+.handshake-callout {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0d1120;
+  border: 1px solid var(--blue);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--blue);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.handshake-callout.visible { opacity: 1; }
+
+/* ── Banner overlay (connection established, etc.) ──────── */
+.sim-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #00ff9d15;
+  border: 1px solid var(--green);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  text-align: center;
+  pointer-events: none;
+  z-index: 20;
+  animation: banner-in 0.3s ease-out;
+}
+
+@keyframes banner-in {
+  from { opacity: 0; transform: translate(-50%, -45%); }
+  to   { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* ── Bit stream display (L1) ────────────────────────────── */
+.bit-stream {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  min-height: 1.4em;
+  word-break: break-all;
+}
+
+.bit-stream .bit-1 { color: var(--green); }
+.bit-stream .bit-0 { color: var(--text-muted); }
+.bit-stream .bit-pending { color: var(--gray-muted); }
+
+/* ── Receiver panel ─────────────────────────────────────── */
+.receiver-display {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--green);
+  letter-spacing: 0.1em;
+  min-height: 1.5em;
+  word-break: break-all;
+}
+
+/* ── DNS hop timing ─────────────────────────────────────── */
+.dns-hop-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-muted);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.dns-timing {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--yellow);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+/* ── Fault tolerance result banner ──────────────────────── */
+.ft-banner--ok   { border-color: var(--green); background: #00ff9d10; color: var(--green); }
+.ft-banner--fail { border-color: var(--red);   background: #ff4d6d10; color: var(--red); }
+
+/* ── L6 canvas wrapper ──────────────────────────────────── */
+#l6-canvas-wrap {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+}
+
+#l6-svg {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+/* Pending edge line (rubber-band) */
+#pending-edge {
+  stroke: var(--blue);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  pointer-events: none;
+}
+
+/* ── ASCII table overlay ────────────────────────────────── */
+.ascii-table-wrap {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--gray-muted);
+  border-radius: var(--radius-lg);
+  background: #090d17;
+}
+
+/* ── Packet reorder animation ───────────────────────────── */
+@keyframes packet-reorder {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+
+.reordering { animation: packet-reorder 0.4s ease; }
+
+/* ── L4 reassembly display ──────────────────────────────── */
+.reassembly-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.reassembly-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-muted);
+  border-radius: var(--radius);
+  background: #0d1220;
+  min-height: 56px;
+}
+
+.reassembly-slot.filled {
+  border-color: var(--green);
+  background: #00ff9d08;
+}
+
+.reassembly-slot-num {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+.reassembly-slot-content {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--green);
+  word-break: break-all;
+  text-align: center;
+}

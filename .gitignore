@@ -1,0 +1,18 @@
+# NET/SIM — AP CSP Internet Simulator
+# ─────────────────────────────────────────────────────────
+# config.js is intentionally tracked (it contains only placeholders).
+# If you add REAL Firebase credentials, uncomment the line below
+# to prevent accidentally committing them to a public repo.
+#
+# config.js
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/settings.json
+.idea/
+*.suo
+*.user
