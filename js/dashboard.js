@@ -1,6 +1,7 @@
 // Teacher dashboard — reads all student responses from Firebase in real time.
 
 import { getDB, getFirebaseDB } from './firebase/db.js';
+import { dashboardPassword }    from '../config.js';
 
 const LEVEL_QUESTIONS = {
   1: 'Why does the receiver need to know where one character ends and the next begins?',
@@ -116,12 +117,70 @@ function esc(str) {
     .replace(/\n/g, ' ');
 }
 
+function showPasswordGate() {
+  const gate = document.createElement('div');
+  gate.id = 'dash-gate';
+  gate.style.cssText = `
+    position:fixed;inset:0;z-index:9999;
+    background:var(--bg);
+    display:flex;align-items:center;justify-content:center;
+  `;
+  gate.innerHTML = `
+    <div style="
+      background:#111827;border:1px solid var(--gray);border-radius:8px;
+      padding:2rem 2.5rem;width:min(360px,90vw);
+      font-family:var(--font-mono);display:flex;flex-direction:column;gap:1.25rem;
+    ">
+      <div style="color:var(--green);font-size:0.9rem;font-weight:700;letter-spacing:0.05em">
+        NET/SIM — Teacher Dashboard
+      </div>
+      <div style="color:var(--muted);font-size:0.78rem">Enter the dashboard password to continue.</div>
+      <input id="gate-input" type="password" placeholder="Password"
+        style="background:#1a2035;border:1px solid var(--gray);border-radius:4px;
+               padding:0.5rem 0.75rem;color:var(--text);font-family:var(--font-mono);
+               font-size:0.82rem;width:100%;box-sizing:border-box" />
+      <div id="gate-error" style="color:#ff4d6d;font-size:0.72rem;display:none">Incorrect password.</div>
+      <button id="gate-btn" style="
+        background:var(--green);color:#0a0e1a;border:none;border-radius:4px;
+        padding:0.55rem 1.25rem;font-family:var(--font-mono);font-size:0.82rem;
+        font-weight:700;cursor:pointer;align-self:flex-end;
+      ">Enter</button>
+    </div>
+  `;
+  document.body.appendChild(gate);
+
+  const input = gate.querySelector('#gate-input');
+  const btn   = gate.querySelector('#gate-btn');
+  const err   = gate.querySelector('#gate-error');
+
+  function attempt() {
+    if (input.value === dashboardPassword) {
+      gate.remove();
+      init().catch(showInitError);
+    } else {
+      err.style.display = '';
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') attempt(); });
+  setTimeout(() => input.focus(), 50);
+}
+
+function showInitError(err) {
+  document.getElementById('dash-error').textContent =
+    err.message.includes('not configured')
+      ? 'Firebase is not configured. Fill in config.js before using the dashboard.'
+      : `Error: ${err.message}`;
+  document.getElementById('dash-error').hidden = false;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-  init().catch(err => {
-    document.getElementById('dash-error').textContent =
-      err.message.includes('not configured')
-        ? 'Firebase is not configured. Fill in config.js before using the dashboard.'
-        : `Error: ${err.message}`;
-    document.getElementById('dash-error').hidden = false;
-  });
+  if (dashboardPassword) {
+    showPasswordGate();
+  } else {
+    init().catch(showInitError);
+  }
 });

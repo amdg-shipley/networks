@@ -124,6 +124,20 @@
       <div class="settings-body">
         <div class="settings-row">
           <div>
+            <div class="settings-label">Your Name</div>
+            <div class="settings-desc">Shown to your teacher alongside your answers.</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;align-items:center">
+            <input id="settings-name-input" type="text" maxlength="32"
+              placeholder="First name + last initial"
+              style="background:#1a2035;border:1px solid var(--gray-muted);border-radius:4px;
+                     padding:0.35rem 0.6rem;color:var(--text);font-family:var(--font-mono);
+                     font-size:0.75rem;width:160px" />
+            <button id="update-name-btn" class="btn">Update</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div>
             <div class="settings-label">Reset Progress</div>
             <div class="settings-desc">Clears all completed levels and returns to Level 1. Cannot be undone.</div>
           </div>

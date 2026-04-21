@@ -27,66 +27,83 @@ export function getIdentity() {
  */
 export function saveName(name) {
   const identity = getIdentity();
-  identity.name  = name.trim();
+  identity.name = name.trim();
   localStorage.setItem(IDENTITY_KEY, JSON.stringify(identity));
 }
 
 /**
- * Render a non-blocking name prompt bar at the top of a container.
- * Calls onSave(name) when the student enters their name.
- * Automatically removes itself once saved.
- * Does nothing if name is already set.
- *
- * @param {HTMLElement} container  - prepended to this element
- * @param {Function}    onSave     - called with the saved name string
+ * Show a blocking modal on first load if no name is set.
+ * Does nothing if a name is already stored.
  */
-export function renderNamePrompt(container, onSave) {
-  if (getIdentity().name) return; // already have a name
+export function promptNameModal() {
+  if (getIdentity().name) return;
 
-  const bar = document.createElement('div');
-  bar.id = 'name-prompt-bar';
-  bar.style.cssText = `
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 0.75rem;
-    background: #0d1120;
-    border: 1px solid var(--blue);
-    border-radius: var(--radius);
-    margin-bottom: 0.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
+  const overlay = document.createElement('div');
+  overlay.id = 'name-modal-overlay';
+  overlay.style.cssText = `
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(10,14,26,0.85);
+    display: flex; align-items: center; justify-content: center;
   `;
 
-  bar.innerHTML = `
-    <span style="color:var(--blue);white-space:nowrap">👤 Your name:</span>
-    <input id="name-prompt-input" type="text" maxlength="24" placeholder="First name + last initial"
-      style="background:#1a2035;border:1px solid var(--gray-muted);border-radius:4px;
-             padding:0.3rem 0.5rem;color:var(--text);font-family:var(--font-mono);
-             font-size:0.75rem;flex:1;min-width:0;max-width:200px" />
-    <button id="name-prompt-save" style="
-      background:var(--blue);color:#0a0e1a;border:none;border-radius:4px;
-      padding:0.3rem 0.75rem;font-family:var(--font-mono);font-size:0.72rem;
-      font-weight:700;cursor:pointer;white-space:nowrap">Save</button>
-    <span style="color:var(--text-muted);font-size:0.65rem">
-      So your teacher can see your answers
-    </span>
+  overlay.innerHTML = `
+    <div style="
+      background: #111827;
+      border: 1px solid var(--blue);
+      border-radius: var(--radius);
+      padding: 2rem 2.5rem;
+      width: min(420px, 90vw);
+      font-family: var(--font-mono);
+      display: flex; flex-direction: column; gap: 1.25rem;
+    ">
+      <div style="color: var(--blue); font-size: 1rem; font-weight: 700; letter-spacing: 0.05em">
+        WELCOME TO NET/SIM
+      </div>
+      <div style="color: var(--text-muted); font-size: 0.78rem; line-height: 1.5">
+        Enter your name so your teacher can see your answers.
+      </div>
+      <input id="name-modal-input" type="text" maxlength="32"
+        placeholder="First name + last initial"
+        style="
+          background: #1a2035; border: 1px solid var(--gray-muted);
+          border-radius: 4px; padding: 0.5rem 0.75rem;
+          color: var(--text); font-family: var(--font-mono);
+          font-size: 0.82rem; width: 100%; box-sizing: border-box;
+        " />
+      <button id="name-modal-save" disabled style="
+        background: var(--blue); color: #0a0e1a;
+        border: none; border-radius: 4px;
+        padding: 0.55rem 1.25rem;
+        font-family: var(--font-mono); font-size: 0.82rem;
+        font-weight: 700; cursor: pointer;
+        opacity: 0.45; transition: opacity 0.15s;
+        align-self: flex-end;
+      ">Let's go →</button>
+    </div>
   `;
 
-  container.prepend(bar);
+  document.body.appendChild(overlay);
 
-  const input   = bar.querySelector('#name-prompt-input');
-  const saveBtn = bar.querySelector('#name-prompt-save');
+  const input   = overlay.querySelector('#name-modal-input');
+  const saveBtn = overlay.querySelector('#name-modal-save');
+
+  input.addEventListener('input', () => {
+    const hasValue = input.value.trim().length > 0;
+    saveBtn.disabled = !hasValue;
+    saveBtn.style.opacity = hasValue ? '1' : '0.45';
+    saveBtn.style.cursor  = hasValue ? 'pointer' : 'default';
+  });
 
   function save() {
     const name = input.value.trim();
-    if (!name) { input.style.borderColor = 'var(--red)'; return; }
+    if (!name) return;
     saveName(name);
-    bar.remove();
-    onSave(name);
+    overlay.remove();
   }
 
   saveBtn.addEventListener('click', save);
   input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); });
-  input.focus();
+
+  // Focus after a tick so the browser doesn't scroll
+  setTimeout(() => input.focus(), 50);
 }

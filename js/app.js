@@ -1,6 +1,7 @@
 import { initConceptPanel } from './components/concept-panel.js';
 import { initGlossary }     from './components/glossary.js';
 import { initTerminal, clear as clearTerminal } from './utils/terminal.js';
+import { getIdentity, saveName, promptNameModal } from './utils/identity.js';
 
 // ── Level module registry ────────────────────────────────
 // Each level is imported on demand to avoid loading Firebase
@@ -108,10 +109,25 @@ function initSettings() {
   const settingsBtn  = document.getElementById('settings-btn');
   const settingsMod  = document.getElementById('settings-modal');
   const resetBtn     = document.getElementById('reset-progress-btn');
+  const nameInput    = document.getElementById('settings-name-input');
+  const updateBtn    = document.getElementById('update-name-btn');
 
-  settingsBtn.addEventListener('click', () => openModal(settingsMod));
+  settingsBtn.addEventListener('click', () => {
+    nameInput.value = getIdentity().name || '';
+    openModal(settingsMod);
+  });
   settingsMod.querySelector('.modal-close').addEventListener('click', () => closeModal(settingsMod));
   settingsMod.querySelector('.modal-backdrop').addEventListener('click', () => closeModal(settingsMod));
+
+  updateBtn.addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.style.borderColor = 'var(--red)'; return; }
+    nameInput.style.borderColor = '';
+    saveName(name);
+    updateBtn.textContent = 'Saved!';
+    setTimeout(() => { updateBtn.textContent = 'Update'; }, 1500);
+  });
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') updateBtn.click(); });
 
   resetBtn.addEventListener('click', () => {
     if (confirm('Reset all progress? This cannot be undone.')) {
@@ -147,6 +163,7 @@ function init() {
 
   document.querySelector('.level-nav').addEventListener('click', onNavClick);
 
+  promptNameModal();
   updateNav();
   loadLevel(1);
 }

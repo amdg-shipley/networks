@@ -18,6 +18,9 @@
 //
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Password required to open dashboard.html. Change this to something only you know.
+export const dashboardPassword = 'teacher';
+
 export const firebaseConfig = {
   apiKey: "AIzaSyC2vzO0GfAW99M7T80NXBT_pc752FAJT94",
   authDomain: "network-sim-969e4.firebaseapp.com",

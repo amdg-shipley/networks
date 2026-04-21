@@ -7,7 +7,7 @@ import { animatePacket, showBanner, showDrop, delay } from '../utils/animation.j
 import { bfs }                                       from '../utils/pathfinding.js';
 import { setConceptLevel }                           from '../components/concept-panel.js';
 import { completeLevel }                             from '../app.js';
-import { getIdentity, renderNamePrompt }             from '../utils/identity.js';
+import { getIdentity }                               from '../utils/identity.js';
 import { saveResponse }                              from '../firebase/responses.js';
 
 // ── SVG topology ─────────────────────────────────────────
@@ -60,8 +60,6 @@ export function mount(container) {
     const p = JSON.parse(localStorage.getItem('netsim_progress') || '{}');
     if (p.completed?.includes(4)) markComplete(container);
   } catch (_) { /* ignore */ }
-
-  renderNamePrompt(container, name => log(`Welcome, ${name}!`, 'success'));
 
   log('Level 4 loaded — TCP/IP & Packet Routing', 'muted');
   log('Click SEND to begin the TCP three-way handshake, then data transfer.', 'info');
@@ -309,9 +307,8 @@ async function onSend() {
   setStatus('Sending packets…');
 
   // Split message into 4 parts
-  const parts   = splitMsg(msg, 4);
-  const paths   = [PATH_ALPHA, PATH_BETA, PATH_ALPHA, PATH_BETA];
-  const arriveOrder = [1, 3, 2, 4]; // packets arrive slightly out of order
+  const parts        = splitMsg(msg, 4);
+  const paths        = [PATH_ALPHA, PATH_BETA, PATH_ALPHA, PATH_BETA];
   const arrivedSlots = {};
 
   for (let i = 0; i < 4; i++) {
@@ -376,7 +373,7 @@ async function onSend() {
         duration: path === PATH_BETA ? 850 : 700,
       });
 
-      const arriveIdx = arriveOrder[i];
+      const arriveIdx = pktNum;
       arrivedSlots[arriveIdx] = content;
 
       const slot    = document.querySelector(`#l4-slot-${arriveIdx}`);

@@ -195,13 +195,17 @@ function buildHTML() {
     <!-- Bottom controls -->
     <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-top:0.75rem">
       <!-- Message send -->
-      <div style="display:flex;gap:0.5rem;align-items:center">
+      <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
         <select id="l6-dest-select" class="field-input" style="width:auto;padding:0.3rem 0.5rem">
           <option value="">— select destination —</option>
         </select>
         <input id="l6-msg-input" class="field-input" type="text"
           placeholder="Message…" maxlength="40" style="max-width:160px" autocomplete="off" />
         <button id="l6-send-msg-btn" class="btn btn--secondary">SEND</button>
+        <label class="checkbox-label">
+          <input type="checkbox" id="l6-loss-toggle" />
+          Simulate 20% packet loss
+        </label>
       </div>
 
       <!-- Fault tolerance -->
@@ -612,6 +616,8 @@ async function onSendMessage() {
     return;
   }
 
+  const packetLoss = document.querySelector('#l6-loss-toggle')?.checked || false;
+
   log(`Routing "${content}" via ${path.map(id => nodesData[id]?.label || id).join(' → ')}`, 'info');
   await sync.sendMessage(roomCode, myDeviceId, destId, content);
   msgInp.value = '';
@@ -627,11 +633,34 @@ async function onSendMessage() {
     const x1 = fromNode.x * W, y1 = fromNode.y * H;
     const x2 = toNode.x   * W, y2 = toNode.y   * H;
 
-    // Create a temporary SVG path for the animation
     const tempPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     tempPath.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
     tempPath.style.display = 'none';
     svgEl.appendChild(tempPath);
+
+    if (packetLoss && Math.random() < 0.20) {
+      let dropped = false;
+      await new Promise(resolve => {
+        const { cancel } = animatePacket(svgEl, tempPath, {
+          label:    content.slice(0, 4),
+          color:    'green',
+          duration: 600,
+          onMidpoint: ({ x, y, cancel: c }) => {
+            if (!dropped) {
+              dropped = true;
+              c();
+              showDrop(svgEl, x, y);
+              resolve();
+            }
+          },
+          onComplete: resolve,
+        });
+        cancelFns.push(cancel);
+      });
+      tempPath.remove();
+      log(`Packet dropped at ${nodesData[path[i + 1]]?.label || path[i + 1]} — not delivered.`, 'error');
+      return;
+    }
 
     await new Promise(resolve => {
       const { cancel } = animatePacket(svgEl, tempPath, {

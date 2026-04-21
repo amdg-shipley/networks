@@ -6,7 +6,7 @@ import { animatePacket, glowWire, showBanner, delay } from '../utils/animation.j
 import { stringToBits, bitsToString }       from '../utils/encoding.js';
 import { setConceptLevel }                  from '../components/concept-panel.js';
 import { completeLevel }                    from '../app.js';
-import { getIdentity, renderNamePrompt }    from '../utils/identity.js';
+import { getIdentity }                      from '../utils/identity.js';
 import { saveResponse }                     from '../firebase/responses.js';
 
 // ── SVG layout constants ─────────────────────────────────
@@ -42,8 +42,6 @@ export function mount(container) {
     const p = JSON.parse(localStorage.getItem('netsim_progress') || '{}');
     if (p.completed?.includes(1)) markComplete(container);
   } catch (_) { /* ignore */ }
-
-  renderNamePrompt(container, name => log(`Welcome, ${name}!`, 'success'));
 
   log('Level 1 loaded — Binary Wire', 'muted');
   log('Type a message and click SEND to begin transmission.', 'info');

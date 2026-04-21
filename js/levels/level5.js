@@ -5,7 +5,7 @@ import { log }                                from '../utils/terminal.js';
 import { animatePacket, showLabel, showBanner, delay } from '../utils/animation.js';
 import { setConceptLevel }                    from '../components/concept-panel.js';
 import { completeLevel }                      from '../app.js';
-import { getIdentity, renderNamePrompt }      from '../utils/identity.js';
+import { getIdentity }                        from '../utils/identity.js';
 import { saveResponse }                       from '../firebase/responses.js';
 
 // ── Node layout ───────────────────────────────────────────
@@ -80,8 +80,6 @@ export function mount(container) {
     const p = JSON.parse(localStorage.getItem('netsim_progress') || '{}');
     if (p.completed?.includes(5)) markComplete(container);
   } catch (_) { /* ignore */ }
-
-  renderNamePrompt(container, name => log(`Welcome, ${name}!`, 'success'));
 
   log('Level 5 loaded — DNS Resolution', 'muted');
   log('Enter a domain name to watch the full DNS lookup chain animate.', 'info');

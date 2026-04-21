@@ -7,7 +7,7 @@ import { charTo7BitASCII, chunkBinary }     from '../utils/encoding.js';
 import { setConceptLevel }                  from '../components/concept-panel.js';
 import { createASCIITableWidget }           from '../components/ascii-table.js';
 import { completeLevel }                    from '../app.js';
-import { getIdentity, renderNamePrompt }    from '../utils/identity.js';
+import { getIdentity }                      from '../utils/identity.js';
 import { saveResponse }                     from '../firebase/responses.js';
 
 // ── Layout ───────────────────────────────────────────────
@@ -44,8 +44,6 @@ export function mount(container) {
     const p = JSON.parse(localStorage.getItem('netsim_progress') || '{}');
     if (p.completed?.includes(3)) markComplete(container);
   } catch (_) { /* ignore */ }
-
-  renderNamePrompt(container, name => log(`Welcome, ${name}!`, 'success'));
 
   log('Level 3 loaded — ASCII & Protocols', 'muted');
   log('Select a chunk size and send a message to see how protocols define boundaries.', 'info');
