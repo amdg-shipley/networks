@@ -61,9 +61,9 @@ function buildHTML() {
     <div class="level-controls">
       <span class="level-title">L1 — BINARY WIRE</span>
       <div class="speed-control">
-        <span class="speed-label">SPEED</span>
+        <span class="speed-label">SLOW</span>
         <input id="l1-speed" type="range" min="1" max="3" value="2" step="1" />
-        <span class="speed-label" id="l1-speed-label">MED</span>
+        <span class="speed-label">FAST</span>
       </div>
     </div>
 
@@ -128,13 +128,8 @@ function buildHTML() {
 }
 
 // ── Speed slider ─────────────────────────────────────────
-function getSpeed(container) {
-  const slider = document.querySelector('#l1-speed');
-  const val    = Number(slider?.value || 2);
-  const labels = { 1: 'SLOW', 2: 'MED', 3: 'FAST' };
-  if (container) {
-    document.querySelector('#l1-speed-label').textContent = labels[val];
-  }
+function getSpeed() {
+  const val = Number(document.querySelector('#l1-speed')?.value || 2);
   return SPEED_MAP[val];
 }
 
@@ -161,7 +156,7 @@ async function onSend() {
   senderNode.classList.add('node--active');
 
   const bits    = stringToBits(msg);
-  const msBit   = getSpeed(container);
+  const msBit   = getSpeed();
   const received = [];
 
   log(`Sending "${msg}" (${msg.length} chars = ${bits.length} bits)`, 'info');
