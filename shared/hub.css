@@ -1,0 +1,451 @@
+/* Hub-only styles: homepage + ap-map. Not loaded by simulator or ascii tool. */
+
+:root {
+  --bg:        #0a0e1a;
+  --green:     #00ff9d;
+  --blue:      #00b4ff;
+  --red:       #ff4d6d;
+  --text:      #e8eaf6;
+  --muted:     #7b82a8;
+  --gray-muted:#3a3f5c;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-ui:   'Outfit', system-ui, sans-serif;
+  --radius:    6px;
+  --radius-lg: 10px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  overflow: auto;
+}
+
+body {
+  padding-top: 40px; /* hub nav height */
+}
+
+a { color: inherit; }
+
+/* ── Hub wrapper ──────────────────────────────────────────── */
+
+.hub-wrap {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+}
+
+/* ── Header / Hero ───────────────────────────────────────── */
+
+.hub-header {
+  text-align: center;
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid var(--gray-muted);
+  margin-bottom: 3rem;
+}
+
+.hub-header h1 {
+  font-family: var(--font-mono);
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-weight: 700;
+  color: var(--green);
+  text-shadow: 0 0 20px #00ff9d55, 0 0 40px #00ff9d22;
+  letter-spacing: 0.12em;
+  margin: 0 0 0.5rem;
+}
+
+.hub-school {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  border: 1px solid var(--gray-muted);
+  border-radius: 999px;
+  padding: 0.2rem 0.8rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.hub-tagline {
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  color: var(--muted);
+  margin: 0.5rem 0 1.5rem;
+}
+
+.hub-yt-link {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.15s;
+}
+.hub-yt-link:hover { color: var(--text); }
+
+/* ── Tool Cards ──────────────────────────────────────────── */
+
+.tools-section h2 {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 0 0 1.25rem;
+}
+
+.tools-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 700px) {
+  .tools-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.tool-card {
+  display: block;
+  background: #0d1120;
+  border: 1px solid var(--gray-muted);
+  border-left: 3px solid var(--card-accent, var(--muted));
+  border-radius: var(--radius-lg);
+  padding: 1.4rem 1.25rem 1.25rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  cursor: pointer;
+}
+
+.tool-card[data-color="green"] { --card-accent: var(--green); }
+.tool-card[data-color="blue"]  { --card-accent: var(--blue); }
+
+.tool-card:hover {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--card-accent) 25%, transparent);
+  transform: translateY(-1px);
+}
+
+.tool-card[data-status="coming-soon"] {
+  opacity: 0.5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.card-icon {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  color: var(--card-accent, var(--muted));
+  margin-bottom: 0.6rem;
+  line-height: 1;
+}
+
+.card-unit {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
+.card-title {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 0.35rem;
+}
+
+.card-tagline {
+  font-size: 0.85rem;
+  color: var(--card-accent, var(--muted));
+  margin: 0 0 0.6rem;
+  font-style: italic;
+}
+
+.card-desc {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 1rem;
+}
+
+.card-concepts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+/* ── EK / Concept Badges ─────────────────────────────────── */
+
+.ek-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--gray-muted);
+  background: #111827;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ek-badge--covered {
+  border-color: var(--card-accent, var(--green));
+  color: var(--card-accent, var(--green));
+  background: color-mix(in srgb, var(--card-accent, var(--green)) 10%, transparent);
+  cursor: default;
+}
+
+a.ek-badge--covered {
+  cursor: pointer;
+  text-decoration: none;
+}
+a.ek-badge--covered:hover {
+  background: color-mix(in srgb, var(--card-accent, var(--green)) 20%, transparent);
+}
+
+/* ── AP Map Accordion ────────────────────────────────────── */
+
+.page-header {
+  padding: 2.5rem 0 1.5rem;
+  border-bottom: 1px solid var(--gray-muted);
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-family: var(--font-mono);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  font-weight: 700;
+  color: var(--green);
+  margin: 0 0 0.4rem;
+}
+
+.page-header p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.ap-accordion { display: flex; flex-direction: column; gap: 0.5rem; }
+
+details.bi-section {
+  background: #0d1120;
+  border: 1px solid var(--gray-muted);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+details.bi-section[open] {
+  border-color: #4a5080;
+}
+
+details.bi-section > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  user-select: none;
+}
+
+details.bi-section > summary::-webkit-details-marker { display: none; }
+
+details.bi-section > summary::before {
+  content: '▶';
+  font-size: 0.55rem;
+  color: var(--muted);
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+details.bi-section[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.bi-code {
+  color: var(--green);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.bi-title {
+  color: var(--text);
+  flex: 1;
+}
+
+.bi-tool-badges {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tool-badge {
+  font-size: 0.58rem;
+  padding: 0.12rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.tool-badge--green {
+  color: var(--green);
+  border-color: var(--green);
+  background: #00ff9d11;
+}
+
+.tool-badge--blue {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: #00b4ff11;
+}
+
+.bi-eks {
+  padding: 0.75rem 1.1rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  border-top: 1px solid var(--gray-muted);
+}
+
+.no-eks {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* ── Hub section wrappers ────────────────────────────────── */
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+.hub-section {
+  margin-bottom: 3rem;
+}
+
+.hub-byline {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+/* Aliases: tool-* → card-* for homepage JS */
+.tool-icon   { font-family: var(--font-mono); font-size: 1.4rem; color: var(--card-accent, var(--muted)); margin-bottom: 0.6rem; line-height: 1; }
+.tool-unit   { font-family: var(--font-mono); font-size: 0.62rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 0.4rem; }
+.tool-title  { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; color: var(--text); margin: 0 0 0.35rem; }
+.tool-tagline{ font-size: 0.85rem; color: var(--card-accent, var(--muted)); margin: 0 0 0.6rem; font-style: italic; }
+.tool-desc   { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin: 0 0 1rem; }
+.tool-concepts{ display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+/* ── AP Map EK list ──────────────────────────────────────── */
+
+.bi-coverage {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.ek-list {
+  padding: 0.5rem 1.1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border-top: 1px solid var(--gray-muted);
+}
+
+.ek-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+}
+
+.ek-row .ek-code {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  min-width: 8rem;
+  flex-shrink: 0;
+}
+
+.ek-row--covered .ek-code {
+  color: var(--text);
+}
+
+.ek-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.ek-tool-badge {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--gray-muted);
+  color: var(--muted);
+}
+
+.ek-tool-badge[data-color="green"] {
+  color: var(--green);
+  border-color: var(--green);
+  background: #00ff9d11;
+}
+
+.ek-tool-badge[data-color="blue"] {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: #00b4ff11;
+}
+
+.ek-uncovered {
+  font-size: 0.65rem;
+  color: var(--gray-muted);
+  font-style: italic;
+}
+
+.bi-empty {
+  padding: 0.75rem 1.1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-top: 1px solid var(--gray-muted);
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+
+.hub-footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--gray-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-align: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hub-footer a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.hub-footer a:hover { color: var(--text); }

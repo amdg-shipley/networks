@@ -1,0 +1,307 @@
+/* Override --nav-h to account for hub nav (40px) above the simulator's app-nav (52px) */
+:root { --nav-h: 92px; }
+
+/* ── App Shell Grid ──────────────────────────────────────── */
+
+#app-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--nav-h);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.25rem;
+  background: #0d1120;
+  border-bottom: 1px solid var(--gray-muted);
+}
+
+.nav-brand {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.12em;
+  text-shadow: var(--green-glow);
+  white-space: nowrap;
+  min-width: 6rem;
+}
+
+/* ── Level nav buttons ──────────────────────────────────── */
+.level-nav {
+  display: flex;
+  gap: 0.35rem;
+  flex: 1;
+}
+
+.level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-muted);
+  background: transparent;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  min-width: 52px;
+  color: var(--text-muted);
+}
+
+.level-btn .level-num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.level-btn .level-name {
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.level-btn.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.level-btn.unlocked {
+  color: var(--text);
+  border-color: #4a5080;
+}
+
+.level-btn.unlocked:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #00b4ff0f;
+}
+
+.level-btn.active {
+  color: var(--green);
+  border-color: var(--green);
+  background: #00ff9d0d;
+  box-shadow: var(--green-glow);
+}
+
+.level-btn.completed .level-num::after {
+  content: '✓';
+  font-size: 0.55rem;
+  vertical-align: super;
+  margin-left: 1px;
+  color: var(--green);
+}
+
+/* ── Nav actions ────────────────────────────────────────── */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-muted);
+  color: var(--text-muted);
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.icon-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* ── Main area ──────────────────────────────────────────── */
+#app-main {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  bottom: var(--concept-h);
+  display: grid;
+  grid-template-columns: 1fr var(--term-w);
+}
+
+/* ── Level canvas ───────────────────────────────────────── */
+#level-canvas {
+  overflow: auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── Terminal panel ─────────────────────────────────────── */
+#terminal-panel {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--gray-muted);
+  background: #090d17;
+  overflow: hidden;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--gray-muted);
+  flex-shrink: 0;
+}
+
+.terminal-title {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.term-btn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  border: 1px solid var(--gray-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.term-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+#terminal-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+}
+
+.term-line {
+  padding: 0.05rem 0.75rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.term-line--success { color: var(--green); }
+.term-line--info    { color: var(--blue); }
+.term-line--warn    { color: var(--yellow); }
+.term-line--error   { color: var(--red); }
+.term-line--muted   { color: var(--text-muted); }
+
+.term-ts {
+  color: var(--gray-muted);
+  flex-shrink: 0;
+  font-size: 0.65rem;
+}
+
+/* ── Concept panel (footer) ─────────────────────────────── */
+#concept-panel {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 90;
+  background: #0d1120;
+  border-top: 1px solid var(--gray-muted);
+  transition: height 0.2s ease;
+}
+
+#concept-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: var(--concept-h);
+  padding: 0 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  transition: color 0.15s;
+}
+
+#concept-toggle:hover { color: var(--text); }
+
+#concept-toggle .chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+#concept-toggle[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+
+#concept-body {
+  padding: 0.75rem 1.25rem 1rem;
+  max-height: 240px;
+  overflow-y: auto;
+  border-top: 1px solid var(--gray-muted);
+}
+
+#concept-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.concept-ek {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.concept-ek-code {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--blue);
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 7rem;
+}
+
+.concept-ek-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+#reflection-prompt {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--green);
+  background: #00ff9d08;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+
+.reflection-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--green);
+  margin-bottom: 0.35rem;
+}
+
+#reflection-text {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.55;
+}

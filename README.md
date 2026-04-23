@@ -1,6 +1,30 @@
-# NET/SIM — AP CSP Internet Simulator
+# amdgship.com — AP CSP Interactive Tools
 
-A browser-based, multi-level network simulation for AP Computer Science Principles.
+A hub site with interactive browser-based tools for AP Computer Science Principles.
+Students access everything at **amdgship.com**.
+
+---
+
+## Site Structure
+
+```
+/                   → Hub homepage (tool cards + AP concept map link)
+/simulator/         → NET/SIM: 6-level network simulator
+/ascii/             → Binary & Unicode Explorer
+/ap-map/            → AP CSP concept map (EK coverage by tool)
+/shared/            → Shared nav + hub styles (not a page)
+```
+
+**Adding a new tool:**
+1. Create a folder at the root (e.g. `/newtool/index.html`)
+2. Add an entry to `/tools.js` (TOOLS array)
+3. Call `import { initNav } from '/shared/nav.js'; initNav();` before `</body>`
+
+---
+
+## NET/SIM — Network Simulator (`/simulator/`)
+
+A multi-level network simulation for AP CSP Unit 3 (Networks & the Internet).
 Students progress through 6 levels: binary wire → hex encoding → ASCII protocols →
 TCP/IP routing → DNS resolution → multiplayer collaborative fault-tolerance lab.
 
@@ -13,7 +37,7 @@ Browsers block module imports over `file://` due to security restrictions.
 
 You must use one of:
 - **GitHub Pages** (recommended — see deploy steps below)
-- **VS Code Live Server** (right-click `index.html` → Open with Live Server)
+- **VS Code Live Server** (right-click `simulator/index.html` → Open with Live Server)
 - `python -m http.server 8080` then open `http://localhost:8080`
 
 ---
@@ -41,7 +65,7 @@ In the Firebase console: **Realtime Database → Rules**. Paste the rules provid
 
 ### Step 3 — Add Your Firebase Credentials
 
-Open `config.js` and fill in your values from Step 1. Also set a dashboard password on the line above the Firebase config.
+Open `simulator/config.js` and fill in your values from Step 1. Also set a dashboard password on the line above the Firebase config.
 
 > **⚠️ Note:** If your GitHub repository is **public**, `config.js` will be visible.
 > Use a **private repo** if your school policy requires it, or ensure your
@@ -54,6 +78,7 @@ Open `config.js` and fill in your values from Step 1. Also set a dashboard passw
 3. Under **Source**, select **Deploy from a branch** → choose `main` → `/ (root)`
 4. Click **Save**
 5. After ~60 seconds, your site is live at `https://<username>.github.io/<repo-name>/`
+6. For a custom domain (`amdgship.com`), add it under **Settings → Pages → Custom domain**
 
 ---
 
@@ -76,7 +101,7 @@ Firebase console under **Realtime Database → Data** between periods.
 
 ## Teacher Dashboard
 
-View student reflection answers in real time as they submit.
+Navigate to `/simulator/dashboard.html` to view student reflection answers in real time.
 
 **What it shows:**
 - Student reflection answers from Levels 1–5, grouped by level

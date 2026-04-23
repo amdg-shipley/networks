@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unicode & ASCII Playground</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#0b1016; --panel:#121a22; --soft:#1a2430; --text:#e6edf3; --muted:#9fb0c3; --accent:#6ee7b7; --accent-2:#60a5fa; --bad:#f87171; --good:#34d399; --card:#0f151c;
+      --radius:18px; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 700px at 75% -10%, rgba(96,165,250,.15), transparent), linear-gradient(180deg,#0b1016,#0d141c);color:var(--text);font:16px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji"}
+    .wrap{max-width:1000px;margin:auto;padding:28px}
+    .wrap{padding-top:68px}
+    header{display:flex;gap:18px;align-items:center;justify-content:space-between;margin-bottom:22px}
+    h1{font-size:clamp(22px,4vw,32px);margin:0;letter-spacing:.25px}
+    .byline{color:var(--muted);font-size:14px}
+    .card{background:linear-gradient(180deg, var(--panel), var(--soft)); border:1px solid #1f2b37; border-radius:var(--radius); box-shadow:var(--shadow)}
+    .grid{display:grid;gap:14px}
+    @media(min-width:880px){.grid{grid-template-columns: 1.1fr 1fr}}
+    .block{padding:18px}
+    .row{display:grid;grid-template-columns: 170px 1fr;gap:14px;align-items:center;margin:10px 0}
+    .row label{color:var(--muted);font-size:14px}
+    input[type="text"], input[type="number"], textarea{width:100%;background:var(--card);border:1px solid #243241;color:var(--text);padding:14px 12px;border-radius:12px;outline:0;transition:border .15s ease, transform .05s ease}
+    input[type="text"]:focus, input[type="number"]:focus{border-color:#36506c}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid #223244;background:#111820;color:var(--muted);font-size:12px}
+    .status{display:flex;flex-wrap:wrap;gap:8px}
+    .status .ok{color:var(--good)}
+    .status .no{color:var(--bad)}
+    .muted{color:var(--muted)}
+    .examples{display:flex;flex-wrap:wrap;gap:8px}
+    .examples button{background:#0f1620;border:1px solid #243241;color:#cfe3ff;padding:10px 12px;border-radius:12px;cursor:pointer}
+    .examples button:hover{transform:translateY(-1px)}
+    .hl{color:#a5b4fc}
+    .kpi{display:grid;grid-template-columns: repeat(4, minmax(0,1fr)); gap:10px}
+    .kpi .tile{background:var(--card);border:1px solid #223244;border-radius:14px;padding:12px}
+    .tile h4{margin:0 0 6px 0;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+    .tile .val{font-size:clamp(14px,2.6vw,20px)}
+    .bar{height:8px;background:#12202d;border-radius:8px;overflow:hidden}
+    .bar > div{height:100%}
+    .bytes{display:flex;gap:8px;flex-wrap:wrap}
+    .byte{padding:8px 10px;border-radius:10px;background:#0d1a26;border:1px solid #213040}
+    .copy{cursor:pointer;background:#0e1722;border:1px solid #233245;border-radius:10px;padding:8px 10px}
+    .copy:hover{transform:translateY(-1px)}
+    footer{margin-top:20px;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Unicode & ASCII Playground</h1>
+        <div class="byline">Type a character, a code point, or a number — everything converts live. Built for AP CS P</div>
+      </div>
+      <div class="pill">🧠 Encoding demo • UTF‑8 focus</div>
+    </header>
+
+    <section class="grid">
+      <!-- Left: Interactive inputs -->
+      <div class="card block">
+        <div class="row">
+          <label for="char">Character</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input id="char" type="text" placeholder="e.g., A, é, 😀, 你" maxlength="4" style="max-width:220px;font-size:20px"/>
+            <button class="copy" id="clearBtn" title="Clear">Clear</button>
+            <div class="muted">(uses first Unicode character entered)</div>
+          </div>
+        </div>
+
+        <div class="row">
+          <label for="cp">Unicode code point</label>
+          <input id="cp" class="mono" type="text" placeholder="e.g., U+0041 or 0x41 or 65" />
+        </div>
+
+        <div class="row">
+          <label for="dec">Decimal</label>
+          <input id="dec" class="mono" type="text" placeholder="0–1,114,111" />
+        </div>
+
+        <div class="row">
+          <label for="hex">Hexadecimal</label>
+          <input id="hex" class="mono" type="text" placeholder="e.g., 41 or 1F600" />
+        </div>
+
+        <div class="row">
+          <label for="bin">Binary</label>
+          <input id="bin" class="mono" type="text" placeholder="e.g., 1000001 or 11111011000000000" />
+        </div>
+
+        <div class="row">
+          <label>Quick examples</label>
+          <div class="examples">
+            <button data-example="A">A</button>
+            <button data-example="é">é</button>
+            <button data-example="😀">😀</button>
+            <button data-example="你">你</button>
+            <button data-example="ß">ß</button>
+            <button data-example="©">©</button>
+            <button data-example="€">€</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Status & bytes -->
+      <div class="card block">
+        <div class="kpi">
+          <div class="tile">
+            <h4>Unicode Block</h4>
+            <div class="val" id="block">—</div>
+          </div>
+          <div class="tile">
+            <h4>In ASCII?</h4>
+            <div class="val" id="isAscii">—</div>
+            <div class="bar"><div id="barAscii"></div></div>
+          </div>
+          <div class="tile">
+            <h4>UTF‑8 Bytes</h4>
+            <div class="bytes" id="utf8bytes">—</div>
+          </div>
+          <div class="tile">
+            <h4>HTML Entity</h4>
+            <div class="val mono" id="htmlEnt">—</div>
+          </div>
+        </div>
+        <div style="margin-top:12px" class="muted">Tip: ASCII is 7‑bit (0–127). Anything higher is Unicode-only. UTF‑8 stores Unicode in 1–4 bytes.</div>
+      </div>
+    </section>
+
+    <!-- Explanations -->
+    <section style="margin-top:16px" class="card block">
+      <h3 style="margin:0 0 8px 0">What’s happening under the hood?</h3>
+      <ol style="margin:8px 0 0 18px">
+        <li><span class="hl">Unicode</span> assigns each character a unique number called a <em>code point</em> (e.g., 😀 is U+1F600).</li>
+        <li><span class="hl">UTF‑8</span> encodes that number as 1–4 bytes so computers can store/transmit it.</li>
+        <li><span class="hl">ASCII</span> is just the first 128 code points (U+0000–U+007F). If your character is ≥128, it isn’t ASCII.</li>
+      </ol>
+    </section>
+
+    <footer>
+      Built for classroom demos • Works offline • No libraries • © 2025
+    </footer>
+  </div>
+
+  <script>
+    // Utility: clamp to valid Unicode scalar values (0..0x10FFFF excluding surrogates)
+    function isScalar(n){ return Number.isInteger(n) && n >= 0 && n <= 0x10FFFF && !(n >= 0xD800 && n <= 0xDFFF); }
+
+    function toUTF8Bytes(codePoint){
+      // Return array of byte numbers (0..255)
+      const cp = codePoint >>> 0;
+      if (cp <= 0x7F) return [cp];
+      if (cp <= 0x7FF) return [
+        0xC0 | (cp >> 6),
+        0x80 | (cp & 0x3F)
+      ];
+      if (cp <= 0xFFFF) return [
+        0xE0 | (cp >> 12),
+        0x80 | ((cp >> 6) & 0x3F),
+        0x80 | (cp & 0x3F)
+      ];
+      return [
+        0xF0 | (cp >> 18),
+        0x80 | ((cp >> 12) & 0x3F),
+        0x80 | ((cp >> 6) & 0x3F),
+        0x80 | (cp & 0x3F)
+      ];
+    }
+
+    function pad(str, len){ return ("0".repeat(len) + str).slice(-len); }
+
+    function blockName(cp){
+      // Lightweight, partial ranges for teaching; not exhaustive.
+      const ranges = [
+        [0x0000,0x007F, "Basic Latin (ASCII)"],
+        [0x0080,0x00FF, "Latin‑1 Supplement"],
+        [0x0100,0x017F, "Latin Extended‑A"],
+        [0x0370,0x03FF, "Greek and Coptic"],
+        [0x0400,0x04FF, "Cyrillic"],
+        [0x3040,0x309F, "Hiragana"],
+        [0x30A0,0x30FF, "Katakana"],
+        [0x4E00,0x9FFF, "CJK Unified Ideographs"],
+        [0x1F300,0x1F5FF, "Misc Symbols & Pictographs"],
+        [0x1F600,0x1F64F, "Emoticons (Emoji)"],
+        [0x1F900,0x1F9FF, "Supplemental Symbols & Pictographs"],
+      ];
+      for (const [a,b,name] of ranges){ if (cp>=a && cp<=b) return name; }
+      return "(various)";
+    }
+
+    // Elements
+    const el = {
+      char: document.getElementById('char'),
+      cp: document.getElementById('cp'),
+      dec: document.getElementById('dec'),
+      hex: document.getElementById('hex'),
+      bin: document.getElementById('bin'),
+      block: document.getElementById('block'),
+      isAscii: document.getElementById('isAscii'),
+      barAscii: document.getElementById('barAscii'),
+      utf8bytes: document.getElementById('utf8bytes'),
+      htmlEnt: document.getElementById('htmlEnt'),
+      examples: document.querySelectorAll('[data-example]'),
+      clearBtn: document.getElementById('clearBtn')
+    };
+
+    function setAsciiBar(yes){
+      el.barAscii.style.width = yes ? '100%' : '30%';
+      el.barAscii.style.background = yes ? 'linear-gradient(90deg,#10b981,#059669)' : 'linear-gradient(90deg,#ef4444,#b91c1c)';
+      el.isAscii.textContent = yes ? 'Yes (0–127)' : 'No (≥128)';
+      el.isAscii.style.color = yes ? 'var(--good)' : 'var(--bad)';
+    }
+
+    function renderBytes(bytes){
+      if (!bytes || !bytes.length){ el.utf8bytes.textContent = '—'; return; }
+      el.utf8bytes.innerHTML = '';
+      bytes.forEach(b=>{
+        const span = document.createElement('span');
+        span.className = 'byte mono';
+        span.textContent = pad(b.toString(16).toUpperCase(),2);
+        span.title = pad(b.toString(2),8);
+        el.utf8bytes.appendChild(span);
+      });
+    }
+
+    function updateAllFromCodePoint(cp){
+      if (!isScalar(cp)) return; // ignore bad
+      // Character string from code point
+      const ch = String.fromCodePoint(cp);
+      el.char.value = ch;
+      el.cp.value = 'U+' + pad(cp.toString(16).toUpperCase(), cp <= 0xFFFF ? 4 : 6);
+      el.dec.value = String(cp);
+      el.hex.value = cp.toString(16).toUpperCase();
+      el.bin.value = cp.toString(2);
+      el.block.textContent = blockName(cp);
+      const ascii = cp <= 127;
+      setAsciiBar(ascii);
+      const bytes = toUTF8Bytes(cp);
+      renderBytes(bytes);
+      el.htmlEnt.textContent = `&#${cp};  &#x${cp.toString(16)};`;
+    }
+
+    function parseCodePointInput(v){
+      if (!v) return null;
+      v = v.trim().toUpperCase();
+      if (v.startsWith('U+')) v = v.slice(2);
+      if (v.startsWith('0X')) v = v.slice(2);
+      if (/^[0-9A-F]+$/.test(v)) return parseInt(v,16);
+      if (/^[0-9]+$/.test(v)) return parseInt(v,10);
+      return null;
+    }
+
+    function handleCharInput(){
+      const s = el.char.value;
+      if (!s) return;
+      const cp = s.codePointAt(0);
+      if (cp !== undefined) updateAllFromCodePoint(cp);
+    }
+
+    el.char.addEventListener('input', handleCharInput);
+
+    el.cp.addEventListener('input', ()=>{
+      const n = parseCodePointInput(el.cp.value);
+      if (n!==null) updateAllFromCodePoint(n);
+    });
+
+    el.dec.addEventListener('input', ()=>{
+      const v = el.dec.value.trim();
+      if (/^[0-9]+$/.test(v)) updateAllFromCodePoint(parseInt(v,10));
+    });
+
+    el.hex.addEventListener('input', ()=>{
+      const v = el.hex.value.trim();
+      if (/^[0-9A-Fa-f]+$/.test(v)) updateAllFromCodePoint(parseInt(v,16));
+    });
+
+    el.bin.addEventListener('input', ()=>{
+      const v = el.bin.value.trim();
+      if (/^[01]+$/.test(v)) updateAllFromCodePoint(parseInt(v,2));
+    });
+
+    el.examples.forEach(btn=>btn.addEventListener('click', ()=>{
+      el.char.value = btn.dataset.example;
+      handleCharInput();
+    }));
+
+    el.clearBtn.addEventListener('click', ()=>{
+      ['char','cp','dec','hex','bin'].forEach(k=>el[k].value='');
+      el.block.textContent='—';
+      el.isAscii.textContent='—';
+      el.utf8bytes.textContent='—';
+      el.htmlEnt.textContent='—';
+      el.barAscii.style.width='0%';
+    });
+
+    // Seed with a friendly default
+    updateAllFromCodePoint('A'.codePointAt(0));
+  </script>
+  <script type="module">
+    import { initNav } from '/shared/nav.js';
+    initNav();
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+/* ── CSS Custom Properties ──────────────────────────────── */
+:root {
+  /* Colors */
+  --bg:          #0a0e1a;
+  --green:       #00ff9d;
+  --blue:        #00b4ff;
+  --red:         #ff4d6d;
+  --amber:       #ffb347;
+  --yellow:      #ffe066;
+  --gray-muted:  #3a3f5c;
+  --text:        #e8eaf6;
+  --text-muted:  #7b82a8;
+
+  /* Glow variants */
+  --green-glow:  0 0 8px #00ff9d88;
+  --blue-glow:   0 0 8px #00b4ff88;
+  --red-glow:    0 0 8px #ff4d6d88;
+
+  /* Typography */
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --font-ui:   'Outfit', system-ui, sans-serif;
+
+  /* Spacing */
+  --nav-h:      52px;
+  --term-w:     280px;
+  --concept-h:  44px;   /* collapsed height */
+  --radius:     6px;
+  --radius-lg:  10px;
+}
+
+/* ── Reset ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+button {
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input, textarea, select {
+  font-family: var(--font-mono);
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+input::placeholder { color: var(--text-muted); }
+
+svg { display: block; }
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ── Focus visible ───────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}

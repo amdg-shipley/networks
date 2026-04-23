@@ -2,169 +2,63 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NET/SIM — AP CSP Internet Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MR. SHIP — AP CSP Tools</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles/base.css" />
-  <link rel="stylesheet" href="styles/layout.css" />
-  <link rel="stylesheet" href="styles/components.css" />
-  <link rel="stylesheet" href="styles/levels.css" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/hub.css" />
 </head>
 <body>
+  <main>
+    <header class="hub-header">
+      <h1>MR. SHIP</h1>
+      <div class="hub-byline">AP Computer Science Principles · Gonzaga Preparatory School</div>
+      <p class="hub-tagline">Interactive tools for exploring computing concepts.</p>
+    </header>
 
-  <!-- ── TOP NAV ───────────────────────────────────────────── -->
-  <header id="app-nav">
-    <div class="nav-brand">NET/SIM</div>
+    <section class="hub-section">
+      <div id="tools-grid" class="tools-grid"></div>
+    </section>
 
-    <nav class="level-nav" aria-label="Levels">
-      <button class="level-btn active" data-level="1" aria-label="Level 1: Binary Wire">
-        <span class="level-num">1</span>
-        <span class="level-name">Binary</span>
-      </button>
-      <button class="level-btn locked" data-level="2" aria-label="Level 2: Hex Encoding">
-        <span class="level-num">2</span>
-        <span class="level-name">Hex</span>
-      </button>
-      <button class="level-btn locked" data-level="3" aria-label="Level 3: Protocols">
-        <span class="level-num">3</span>
-        <span class="level-name">Protocols</span>
-      </button>
-      <button class="level-btn locked" data-level="4" aria-label="Level 4: TCP/IP">
-        <span class="level-num">4</span>
-        <span class="level-name">TCP/IP</span>
-      </button>
-      <button class="level-btn locked" data-level="5" aria-label="Level 5: DNS">
-        <span class="level-num">5</span>
-        <span class="level-name">DNS</span>
-      </button>
-      <button class="level-btn locked" data-level="6" aria-label="Level 6: Multiplayer Lab">
-        <span class="level-num">6</span>
-        <span class="level-name">Lab</span>
-      </button>
-    </nav>
-
-    <div class="nav-actions">
-      <button id="glossary-btn" class="icon-btn" title="AP Vocabulary Glossary" aria-label="Open glossary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        </svg>
-      </button>
-      <button id="settings-btn" class="icon-btn" title="Settings" aria-label="Open settings">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- ── MAIN AREA ──────────────────────────────────────────── -->
-  <main id="app-main">
-
-    <!-- Level canvas — level modules render into this -->
-    <section id="level-canvas" aria-live="polite"></section>
-
-    <!-- Terminal panel -->
-    <aside id="terminal-panel" aria-label="Event terminal">
-      <div class="terminal-header">
-        <span class="terminal-title">TERMINAL</span>
-        <div class="terminal-actions">
-          <button id="terminal-copy" class="term-btn" title="Copy log" aria-label="Copy terminal log">COPY</button>
-          <button id="terminal-clear" class="term-btn" title="Clear log" aria-label="Clear terminal log">CLR</button>
-        </div>
-      </div>
-      <div id="terminal-output" role="log" aria-live="polite" aria-label="Terminal output"></div>
-    </aside>
-
+    <footer class="hub-footer">
+      Built by Mr. Ship &middot; 2025–2026
+      &middot; <a href="https://github.com/amdg-shipley/networks" style="color:var(--muted)">GitHub</a>
+    </footer>
   </main>
 
-  <!-- ── CONCEPT PANEL ──────────────────────────────────────── -->
-  <footer id="concept-panel" aria-label="AP CSP Concepts">
-    <button id="concept-toggle" aria-expanded="false" aria-controls="concept-body">
-      <svg class="chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-      <span>AP CSP CONCEPTS</span>
-    </button>
-    <div id="concept-body" hidden>
-      <div id="concept-content"></div>
-      <div id="reflection-prompt" hidden>
-        <div class="reflection-label">REFLECTION</div>
-        <p id="reflection-text"></p>
-      </div>
-    </div>
-  </footer>
+  <script type="module">
+    import { initNav } from '/shared/nav.js';
+    initNav();
+  </script>
+  <script type="module">
+    import { TOOLS } from '/tools.js';
 
-  <!-- ── GLOSSARY MODAL ─────────────────────────────────────── -->
-  <div id="glossary-modal" class="modal" role="dialog" aria-modal="true" aria-label="AP Vocabulary Glossary" hidden>
-    <div class="modal-backdrop"></div>
-    <div class="modal-box">
-      <div class="modal-header">
-        <h2>AP VOCAB GLOSSARY</h2>
-        <button class="modal-close" aria-label="Close glossary">&times;</button>
-      </div>
-      <div class="modal-search">
-        <input type="search" id="glossary-search" placeholder="Search terms..." autocomplete="off" />
-      </div>
-      <div id="glossary-list" class="glossary-list"></div>
-    </div>
-  </div>
+    const grid = document.getElementById('tools-grid');
 
-  <!-- ── SETTINGS MODAL ────────────────────────────────────── -->
-  <div id="settings-modal" class="modal" role="dialog" aria-modal="true" aria-label="Settings" hidden>
-    <div class="modal-backdrop"></div>
-    <div class="modal-box modal-box--sm">
-      <div class="modal-header">
-        <h2>SETTINGS</h2>
-        <button class="modal-close" aria-label="Close settings">&times;</button>
-      </div>
-      <div class="settings-body">
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Your Name</div>
-            <div class="settings-desc">Shown to your teacher alongside your answers.</div>
-          </div>
-          <div style="display:flex;gap:0.5rem;align-items:center">
-            <input id="settings-name-input" type="text" maxlength="32"
-              placeholder="First name + last initial"
-              style="background:#1a2035;border:1px solid var(--gray-muted);border-radius:4px;
-                     padding:0.35rem 0.6rem;color:var(--text);font-family:var(--font-mono);
-                     font-size:0.75rem;width:160px" />
-            <button id="update-name-btn" class="btn">Update</button>
-          </div>
-        </div>
-        <div class="settings-row">
-          <div>
-            <div class="settings-label">Reset Progress</div>
-            <div class="settings-desc">Clears all completed levels and returns to Level 1. Cannot be undone.</div>
-          </div>
-          <button id="reset-progress-btn" class="btn btn--danger">Reset</button>
-        </div>
-      </div>
-    </div>
-  </div>
+    for (const tool of TOOLS) {
+      if (tool.status !== 'live') continue;
 
-  <!-- ── LEVEL 6 JOIN MODAL ─────────────────────────────────── -->
-  <div id="join-modal" class="modal" role="dialog" aria-modal="true" aria-label="Join Room" hidden>
-    <div class="modal-backdrop"></div>
-    <div class="modal-box modal-box--sm">
-      <div class="modal-header">
-        <h2>JOIN ROOM</h2>
-      </div>
-      <div class="settings-body">
-        <label class="field-label" for="join-name">Display Name</label>
-        <input type="text" id="join-name" class="field-input" placeholder="Your name" maxlength="20" autocomplete="off" />
-        <label class="field-label" for="join-code">Room Code</label>
-        <input type="text" id="join-code" class="field-input" placeholder="Enter code from board" maxlength="10" autocomplete="off" style="text-transform:uppercase" />
-        <button id="join-submit" class="btn btn--primary" style="margin-top:1rem;width:100%">Join Room</button>
-        <p id="join-error" class="field-error" hidden></p>
-      </div>
-    </div>
-  </div>
+      const card = document.createElement('a');
+      card.href = tool.path;
+      card.className = 'tool-card';
+      card.dataset.color = tool.color;
 
-  <script type="module" src="js/app.js"></script>
+      const badges = tool.apConcepts.map(ek =>
+        `<span class="ek-badge ek-badge--covered">${ek}</span>`
+      ).join('');
+
+      card.innerHTML = `
+        <div class="tool-icon">${tool.icon}</div>
+        <div class="tool-unit">${tool.unit}</div>
+        <h2 class="tool-title">${tool.title}</h2>
+        <p class="tool-tagline">${tool.tagline}</p>
+        <p class="tool-desc">${tool.description}</p>
+        <div class="tool-concepts">${badges}</div>
+      `;
+
+      grid.appendChild(card);
+    }
+  </script>
 </body>
 </html>

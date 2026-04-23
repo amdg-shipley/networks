@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AP CSP Concept Map — MR. SHIP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/shared/hub.css" />
+</head>
+<body>
+  <main>
+    <header class="hub-header" style="text-align:left;padding-bottom:1rem">
+      <h1 style="font-size:1.4rem">AP CSP Concept Map</h1>
+      <p class="hub-tagline" style="margin-top:0.25rem">
+        Enduring Understandings and Essential Knowledge covered by each tool.
+      </p>
+    </header>
+
+    <section class="hub-section">
+      <div id="ap-map"></div>
+    </section>
+
+    <footer class="hub-footer">
+      Built by Mr. Ship &middot; 2025–2026
+    </footer>
+  </main>
+
+  <script type="module">
+    import { initNav } from '/shared/nav.js';
+    initNav();
+  </script>
+  <script type="module">
+    import { TOOLS, AP_BIG_IDEAS } from '/tools.js';
+
+    // Build EK → [tool ids] lookup
+    const ekToTools = {};
+    for (const tool of TOOLS) {
+      for (const ek of tool.apConcepts) {
+        if (!ekToTools[ek]) ekToTools[ek] = [];
+        ekToTools[ek].push(tool.id);
+      }
+    }
+
+    // Tool color map
+    const toolColor = {};
+    for (const tool of TOOLS) toolColor[tool.id] = tool.color;
+
+    const container = document.getElementById('ap-map');
+
+    for (const bi of AP_BIG_IDEAS) {
+      const section = document.createElement('details');
+      section.className = 'bi-section';
+      section.open = true;
+
+      const covered = bi.eks.filter(ek => ekToTools[ek]?.length);
+      const pct = bi.eks.length ? Math.round(covered.length / bi.eks.length * 100) : 0;
+
+      const summary = document.createElement('summary');
+      summary.innerHTML = `
+        <span class="bi-code">${bi.code}</span>
+        <span class="bi-title">${bi.title}</span>
+        <span class="bi-coverage">${covered.length}/${bi.eks.length} EKs covered</span>
+      `;
+      section.appendChild(summary);
+
+      if (!bi.eks.length) {
+        const empty = document.createElement('div');
+        empty.className = 'bi-empty';
+        empty.textContent = 'No tools yet for this Big Idea.';
+        section.appendChild(empty);
+      } else {
+        const list = document.createElement('div');
+        list.className = 'ek-list';
+
+        for (const ek of bi.eks) {
+          const tools = ekToTools[ek] || [];
+          const isCovered = tools.length > 0;
+
+          const row = document.createElement('div');
+          row.className = `ek-row${isCovered ? ' ek-row--covered' : ''}`;
+
+          const toolBadges = tools.map(tid => {
+            const t = TOOLS.find(x => x.id === tid);
+            return `<span class="ek-tool-badge" data-color="${t?.color || ''}">${t?.title || tid}</span>`;
+          }).join('');
+
+          row.innerHTML = `
+            <span class="ek-code">${ek}</span>
+            <span class="ek-tools">${toolBadges || '<span class="ek-uncovered">not yet covered</span>'}</span>
+          `;
+          list.appendChild(row);
+        }
+        section.appendChild(list);
+      }
+
+      container.appendChild(section);
+    }
+  </script>
+</body>
+</html>

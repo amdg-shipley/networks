@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NET/SIM — Teacher Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --green: #00ff9d;
+      --blue: #00b4ff;
+      --gray: #3a3f5c;
+      --text: #e8eaf6;
+      --muted: #7b82a8;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-ui:   'Outfit', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      min-height: 100vh;
+      padding: 0 0 2rem;
+    }
+
+    /* ── Header ──────────────────────────────────── */
+    header {
+      background: #0d1120;
+      border-bottom: 1px solid var(--gray);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .dash-brand {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--green);
+      letter-spacing: 0.1em;
+    }
+
+    .dash-brand span {
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    .dash-actions {
+      margin-left: auto;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dash-btn {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.35rem 0.85rem;
+      border-radius: 5px;
+      border: 1px solid var(--gray);
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .dash-btn:hover { color: var(--text); border-color: var(--muted); }
+
+    #dash-status { font-family: var(--font-mono); font-size: 0.65rem; color: var(--muted); }
+    #dash-count  { font-family: var(--font-mono); font-size: 0.72rem; color: var(--green); }
+
+    /* ── Error banner ─────────────────────────────── */
+    #dash-error {
+      margin: 1rem 1.5rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid #ff4d6d;
+      border-radius: 6px;
+      background: #ff4d6d10;
+      color: #ff4d6d;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    /* ── Tabs ─────────────────────────────────────── */
+    .dash-tabs {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.75rem 1.5rem 0;
+    }
+
+    .dash-tab {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      padding: 0.35rem 0.9rem;
+      border-radius: 5px 5px 0 0;
+      border: 1px solid var(--gray);
+      border-bottom: none;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .dash-tab.active {
+      color: var(--green);
+      border-color: var(--green);
+      background: #00ff9d0a;
+    }
+    .dash-tab:not(.active):hover { color: var(--text); }
+
+    /* ── Question subheading ──────────────────────── */
+    #dash-question {
+      margin: 0.6rem 1.5rem 0;
+      padding: 0.5rem 0.75rem;
+      border-left: 3px solid var(--blue);
+      background: #00b4ff08;
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── Table ────────────────────────────────────── */
+    .table-wrap {
+      margin: 0 1.5rem;
+      border: 1px solid var(--gray);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead { background: #111827; }
+    thead th {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      padding: 0.5rem 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    tbody tr { border-bottom: 1px solid #1a2035; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #111827; }
+    tbody tr.not-submitted { opacity: 0.4; }
+
+    td { padding: 0.55rem 0.85rem; vertical-align: top; }
+
+    .col-name {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--green);
+      white-space: nowrap;
+      width: 12rem;
+    }
+
+    .col-level {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--blue);
+      white-space: nowrap;
+      width: 3.5rem;
+    }
+
+    .col-answer {
+      font-size: 0.78rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .col-time {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      white-space: nowrap;
+      width: 6rem;
+    }
+
+    /* Empty state */
+    .dash-empty {
+      padding: 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    /* ── Print styles ─────────────────────────────── */
+    @media print {
+      body { background: white; color: black; font-size: 11pt; }
+      header { background: white; border-color: #ccc; }
+      .dash-brand { color: black; }
+      .dash-btn, .dash-actions { display: none; }
+      .dash-tabs { display: none; }
+      .table-wrap { border-color: #ccc; }
+      thead { background: #f5f5f5; }
+      thead th, .col-name, .col-level, .col-answer, .col-time {
+        color: black; font-family: monospace;
+      }
+      tbody tr { border-color: #ddd; }
+      tbody tr:hover { background: transparent; }
+      #dash-question {
+        border-color: #666;
+        background: #f0f0f0;
+        color: black;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="dash-brand">NET/SIM <span>/ Teacher Dashboard</span></div>
+    <span id="dash-count"></span>
+    <span id="dash-status"></span>
+    <div class="dash-actions">
+      <button class="dash-btn" id="dash-refresh">↺ Refresh</button>
+      <button class="dash-btn" id="dash-print">⎙ Print</button>
+    </div>
+  </header>
+
+  <div id="dash-error" hidden></div>
+
+  <div class="dash-tabs">
+    <button class="dash-tab active" data-tab="all">All Levels</button>
+    <button class="dash-tab" data-tab="1">Level 1</button>
+    <button class="dash-tab" data-tab="2">Level 2</button>
+    <button class="dash-tab" data-tab="3">Level 3</button>
+    <button class="dash-tab" data-tab="4">Level 4</button>
+    <button class="dash-tab" data-tab="5">Level 5</button>
+  </div>
+
+  <p id="dash-question" hidden></p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr id="dash-thead">
+          <th>Student</th>
+          <th class="col-level-header">Level</th>
+          <th>Answer / Response</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="dash-tbody">
+        <tr><td colspan="4" class="dash-empty">Waiting for Firebase… (make sure config.js is filled in)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module" src="js/dashboard.js"></script>
+</body>
+</html>
