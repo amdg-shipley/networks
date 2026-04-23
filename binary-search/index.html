@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Search Simulator — AP CSP AAP-2.P</title>
+  <link rel="icon" type="image/x-icon" href="/ascii/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen">
+  <div id="root"></div>
+  <script type="module">
+    import { initNav } from '/shared/nav.js';
+    initNav();
+  </script>
+  <script type="text/babel">
+    const { useState } = React;
+
+    function generateSorted(n) {
+      const pool = Array.from({ length: 90 }, (_, i) => i + 0);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      return pool.slice(0, n).sort((a, b) => a - b);
+    }
+
+    function makeInitState(arr) {
+      return {
+        array: arr,
+        targetInput: '',
+        phase: 'setup',     // 'setup' | 'searching' | 'result'
+        low: 0,
+        high: arr.length - 1,
+        mid: null,
+        iterations: 0,
+        comparison: null,
+        result: null,       // 'found' | 'not-found'
+        foundAt: null,
+      };
+    }
+
+    function ArrayDisplay({ array, low, high, mid, phase }) {
+      return (
+        <div className="overflow-x-auto pb-1">
+          <div className="flex gap-1.5 min-w-max">
+            {array.map((val, i) => {
+              const active = phase !== 'setup';
+              const inRange = i >= low && i <= high;
+              const isMid = active && mid !== null && i === mid;
+              const isLow = active && i === low;
+              const isHigh = active && i === high;
+
+              let cellCls = 'w-12 h-12 flex items-center justify-center text-sm font-mono font-bold border-2 rounded-lg ';
+              if (isMid) {
+                cellCls += 'bg-amber-300 border-amber-500 text-gray-900 shadow-md';
+              } else if (active && !inRange) {
+                cellCls += 'bg-gray-100 border-gray-200 text-gray-400';
+              } else {
+                cellCls += 'bg-white border-gray-300 text-gray-800';
+              }
+
+              return (
+                <div key={i} className="flex flex-col items-center gap-0.5">
+                  <div className={cellCls}>{val}</div>
+                  <div className="text-xs text-gray-400 font-mono leading-none">{i}</div>
+                  <div className="h-4 flex items-center gap-0.5">
+                    {isLow  && <span className="text-xs font-bold text-emerald-600 leading-none">L</span>}
+                    {isMid  && <span className="text-xs font-bold text-amber-600 leading-none">M</span>}
+                    {isHigh && <span className="text-xs font-bold text-red-600 leading-none">H</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [n, setN] = useState(15);
+      const [s, setS] = useState(() => makeInitState(generateSorted(15)));
+      const maxIters = Math.floor(Math.log2(n)) + 1;
+
+      const patch = (p) => setS(prev => ({ ...prev, ...p }));
+
+      const handleSizeChange = (newN) => {
+        if (s.phase === 'searching') return;
+        setN(newN);
+        setS(makeInitState(generateSorted(newN)));
+      };
+
+      const target = parseInt(s.targetInput, 10);
+      const targetValid = !isNaN(target) && target >= 10 && target <= 99;
+
+      const startSearch = () => {
+        if (!targetValid) return;
+        patch({
+          phase: 'searching',
+          low: 0,
+          high: s.array.length - 1,
+          mid: null,
+          iterations: 0,
+          comparison: null,
+          result: null,
+          foundAt: null,
+        });
+      };
+
+      const nextStep = () => {
+        if (s.phase !== 'searching') return;
+        const { low, high, array } = s;
+        const newMid = Math.floor((low + high) / 2);
+        const newIter = s.iterations + 1;
+        const midVal = array[newMid];
+
+        if (midVal === target) {
+          patch({
+            mid: newMid, iterations: newIter,
+            comparison: `MID = ${midVal}. Target = ${target}. ${midVal} = ${target} → Found!`,
+            result: 'found', foundAt: newMid, phase: 'result',
+          });
+        } else if (midVal < target) {
+          const newLow = newMid + 1;
+          if (newLow > high) {
+            patch({
+              mid: newMid, low: newLow, iterations: newIter,
+              comparison: `MID = ${midVal}. Target = ${target}. ${midVal} < ${target} → Move LOW up to index ${newLow}. LOW (${newLow}) > HIGH (${high}) → Value not found.`,
+              result: 'not-found', phase: 'result',
+            });
+          } else {
+            patch({
+              mid: newMid, low: newLow, iterations: newIter,
+              comparison: `MID = ${midVal}. Target = ${target}. ${midVal} < ${target} → Move LOW up to index ${newLow}.`,
+            });
+          }
+        } else {
+          const newHigh = newMid - 1;
+          if (newHigh < low) {
+            patch({
+              mid: newMid, high: newHigh, iterations: newIter,
+              comparison: `MID = ${midVal}. Target = ${target}. ${midVal} > ${target} → Move HIGH down to index ${newHigh}. HIGH (${newHigh}) < LOW (${low}) → Value not found.`,
+              result: 'not-found', phase: 'result',
+            });
+          } else {
+            patch({
+              mid: newMid, high: newHigh, iterations: newIter,
+              comparison: `MID = ${midVal}. Target = ${target}. ${midVal} > ${target} → Move HIGH down to index ${newHigh}.`,
+            });
+          }
+        }
+      };
+
+      const handleShuffle = () => {
+        if (s.phase === 'searching') return;
+        setS(makeInitState(generateSorted(n)));
+      };
+
+      const handleReset = () => {
+        setS(prev => makeInitState(prev.array));
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto px-6 pt-14 pb-12">
+
+          {/* Page header */}
+          <div className="mb-5">
+            <h1 className="text-2xl font-bold text-slate-800">Binary Search Simulator</h1>
+            <p className="text-xs text-slate-400 uppercase tracking-widest mt-0.5">AP CSP · AAP-2.P</p>
+          </div>
+
+          {/* Iteration counter — visible during search and result */}
+          {s.phase !== 'setup' && (
+            <div className="mb-4 bg-slate-900 text-white rounded-xl px-6 py-4 flex items-center justify-between">
+              <div>
+                <div className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">
+                  Iteration Count
+                </div>
+                <div className="text-6xl font-black font-mono leading-none tabular-nums">
+                  {s.iterations}
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-slate-400 mb-1">Maximum possible</div>
+                <div className="text-4xl font-bold font-mono text-slate-200 tabular-nums">
+                  {maxIters}
+                </div>
+                <div className="text-xs text-slate-500 mt-1 font-mono">
+                  ⌊log₂({n})⌋ + 1 = {maxIters}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Array display card */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                  Array
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range" min="5" max="30"
+                    value={n}
+                    disabled={s.phase === 'searching'}
+                    onChange={e => handleSizeChange(parseInt(e.target.value))}
+                    className="w-24 accent-indigo-600 disabled:opacity-40 cursor-pointer"
+                  />
+                  <span className="text-sm font-mono font-bold text-slate-600 w-6 text-center">{n}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleShuffle}
+                  disabled={s.phase === 'searching'}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 text-slate-500 hover:border-amber-400 hover:text-amber-600 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                >
+                  Re-randomize List
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="text-xs px-3 py-1.5 rounded-lg border border-slate-300 text-slate-500 hover:border-indigo-400 hover:text-indigo-600 transition"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <ArrayDisplay
+              array={s.array}
+              low={s.low}
+              high={s.high}
+              mid={s.mid}
+              phase={s.phase}
+            />
+
+            {s.phase !== 'setup' && (
+              <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-emerald-500" />
+                  L — Low bound
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-amber-300 border border-amber-500" />
+                  M — Midpoint
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-red-500" />
+                  H — High bound
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-sm bg-gray-100 border border-gray-200" />
+                  Eliminated
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Control panel */}
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+
+            {/* ── SETUP ── */}
+            {s.phase === 'setup' && (
+              <div className="space-y-4">
+                <p className="text-sm text-slate-600">
+                  Step 0 — Array is sorted. Binary search can begin.
+                </p>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-600 mb-1.5">
+                    Search target
+                  </label>
+                  <input
+                    type="number"
+                    value={s.targetInput}
+                    onChange={e => patch({ targetInput: e.target.value })}
+                    onKeyDown={e => e.key === 'Enter' && targetValid && startSearch()}
+                    placeholder="Enter a number"
+                    className="border-2 border-slate-200 rounded-lg px-4 py-2 w-40 text-lg font-mono focus:border-indigo-400 outline-none"
+                  />
+                </div>
+
+                <button
+                  onClick={startSearch}
+                  disabled={!targetValid}
+                  className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold disabled:opacity-40 hover:bg-indigo-700 transition"
+                >
+                  Start Search
+                </button>
+              </div>
+            )}
+
+            {/* ── SEARCHING + RESULT ── */}
+            {(s.phase === 'searching' || s.phase === 'result') && (
+              <div className="space-y-4">
+
+                <div className="flex items-baseline gap-3">
+                  <span className="text-sm text-slate-500">Searching for</span>
+                  <span className="text-3xl font-black font-mono text-indigo-600">{target}</span>
+                </div>
+
+                {/* Comparison text */}
+                {s.comparison && (
+                  <div className={`px-4 py-3 rounded-lg text-sm font-mono leading-relaxed border ${
+                    s.phase === 'result' && s.result === 'found'
+                      ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                      : s.phase === 'result'
+                        ? 'bg-red-50 border-red-200 text-red-800'
+                        : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}>
+                    {s.comparison}
+                  </div>
+                )}
+
+                {/* Next step button */}
+                {s.phase === 'searching' && (
+                  <button
+                    onClick={nextStep}
+                    className="bg-indigo-600 text-white px-7 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition text-base"
+                  >
+                    Next Step →
+                  </button>
+                )}
+
+                {/* Result section */}
+                {s.phase === 'result' && (
+                  <div className="space-y-4">
+
+                    {/* Headline */}
+                    <div className={`p-4 rounded-xl border-2 ${s.result === 'found' ? 'bg-emerald-50 border-emerald-300' : 'bg-red-50 border-red-200'}`}>
+                      <p className={`font-bold text-lg ${s.result === 'found' ? 'text-emerald-700' : 'text-red-700'}`}>
+                        {s.result === 'found'
+                          ? `Found ${target} at index ${s.foundAt} in ${s.iterations} iteration${s.iterations !== 1 ? 's' : ''}.`
+                          : `Value not found. Eliminated all elements in ${s.iterations} iteration${s.iterations !== 1 ? 's' : ''}.`
+                        }
+                      </p>
+                    </div>
+
+                    {/* Summary stats */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 font-mono text-sm space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500">Iterations used</span>
+                        <span className="font-bold text-slate-800 text-base tabular-nums">{s.iterations}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-500">Max for n = {n}</span>
+                        <span className="font-bold text-slate-800 text-base tabular-nums">{maxIters}</span>
+                      </div>
+                      <div className="flex justify-between items-center border-t border-slate-200 pt-2">
+                        <span className="text-slate-500">Within maximum?</span>
+                        <span className={`font-bold ${s.iterations <= maxIters ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {s.iterations <= maxIters ? '✓ Yes' : '✗ No'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleReset}
+                      className="bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

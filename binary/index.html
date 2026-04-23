@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Binary Converter — AP CSP DAT-1.C</title>
+  <link rel="icon" type="image/x-icon" href="/ascii/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <div id="root"></div>
+  <script type="module">
+    import { initNav } from '/shared/nav.js';
+    initNav();
+  </script>
+  <script type="text/babel">
+    const { useState, useCallback } = React;
+
+    const PV = [128, 64, 32, 16, 8, 4, 2, 1];
+
+    function toBits(n) {
+      let rem = n;
+      return PV.map(pv => {
+        if (rem >= pv) { rem -= pv; return 1; }
+        return 0;
+      });
+    }
+
+    function getSteps(n) {
+      let rem = n;
+      return PV.map(pv => {
+        const fits = rem >= pv;
+        const before = rem;
+        if (fits) rem -= pv;
+        return { pv, fits, before, after: rem };
+      });
+    }
+
+    function BitGrid({ bits, onToggle, feedback, readOnly }) {
+      return (
+        <div>
+          <table className="border-separate border-spacing-1 text-center mx-auto">
+            <thead>
+              <tr>
+                {PV.map(pv => (
+                  <th key={pv} className="w-14 text-xs font-semibold text-slate-400 pb-1 select-none">
+                    {pv}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {bits.map((bit, i) => {
+                  let cls = 'w-14 h-14 text-2xl font-bold rounded-lg border-2 transition-all select-none ';
+                  if (readOnly) {
+                    cls += 'cursor-default pointer-events-none ';
+                  }
+                  if (feedback) {
+                    cls += feedback[i]
+                      ? (bit === 1 ? 'bg-emerald-500 border-emerald-600 text-white' : 'bg-slate-100 border-slate-200 text-slate-400')
+                      : (bit === 1 ? 'bg-red-400 border-red-500 text-white' : 'bg-red-50 border-red-300 text-red-400');
+                  } else {
+                    cls += bit === 1
+                      ? 'bg-indigo-500 border-indigo-600 text-white shadow'
+                      : (readOnly
+                          ? 'bg-slate-100 border-slate-200 text-slate-400'
+                          : 'bg-white border-slate-300 text-slate-300 hover:border-indigo-300 cursor-pointer');
+                  }
+                  return (
+                    <td key={i}>
+                      <button
+                        onClick={() => onToggle && !readOnly && onToggle(i)}
+                        className={cls}
+                      >
+                        {bit}
+                      </button>
+                    </td>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+
+    function DecToBin() {
+      const [input, setInput] = useState('');
+      const [submitted, setSubmitted] = useState(false);
+
+      const num = parseInt(input, 10);
+      const valid = !isNaN(num) && num >= 0 && num <= 255;
+      const steps = valid && submitted ? getSteps(num) : null;
+      const bits = steps ? steps.map(s => s.fits ? 1 : 0) : Array(8).fill(0);
+
+      const submit = () => valid && setSubmitted(true);
+
+      return (
+        <div className="space-y-6">
+          <div className="flex gap-3 items-center">
+            <input
+              type="number" min="0" max="255"
+              value={input}
+              onChange={e => { setInput(e.target.value); setSubmitted(false); }}
+              onKeyDown={e => e.key === 'Enter' && submit()}
+              placeholder="0 – 255"
+              className="border-2 border-slate-200 rounded-lg px-4 py-2 w-28 text-lg focus:border-indigo-400 outline-none"
+            />
+            <button
+              onClick={submit}
+              disabled={!valid}
+              className="bg-indigo-600 text-white px-5 py-2 rounded-lg font-semibold disabled:opacity-40 hover:bg-indigo-700 transition"
+            >
+              Convert
+            </button>
+          </div>
+
+          {steps && (
+            <div className="space-y-5">
+              <BitGrid bits={bits} readOnly />
+
+              <div>
+                <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">Step-by-step</p>
+                <div className="space-y-1.5">
+                  {steps.map((s, i) => (
+                    <div key={i} className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-mono ${
+                      s.fits ? 'bg-indigo-50 border border-indigo-100' : 'bg-slate-50 border border-slate-100'
+                    }`}>
+                      <span className={`w-6 h-6 rounded flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                        s.fits ? 'bg-indigo-500 text-white' : 'bg-slate-200 text-slate-500'
+                      }`}>{s.fits ? 1 : 0}</span>
+                      <span className="text-slate-600">
+                        {s.fits ? (
+                          <><span className="font-semibold text-slate-800">{s.before}</span> ≥ {s.pv} → bit = <span className="text-indigo-600 font-bold">1</span>, remainder = <span className="font-semibold">{s.after}</span></>
+                        ) : (
+                          <><span className="font-semibold text-slate-800">{s.before}</span> &lt; {s.pv} → bit = <span className="text-slate-400 font-bold">0</span></>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-base font-bold text-slate-700 font-mono">
+                  {num}<sub className="text-xs text-slate-400">10</sub>
+                  {' = '}
+                  {bits.join('')}<sub className="text-xs text-slate-400">2</sub>
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function BinToDec() {
+      const [bits, setBits] = useState(Array(8).fill(0));
+
+      const decimal = bits.reduce((sum, b, i) => sum + b * PV[i], 0);
+      const toggle = i => { const n = [...bits]; n[i] ^= 1; setBits(n); };
+      const parts = bits.map((b, i) => b ? PV[i] : null).filter(Boolean);
+
+      return (
+        <div className="space-y-5">
+          <BitGrid bits={bits} onToggle={toggle} />
+
+          <div className="bg-slate-50 rounded-lg px-4 py-3 font-mono text-sm text-slate-600 min-h-[2.5rem]">
+            {parts.length ? <>{parts.join(' + ')} = </> : null}
+            <span className="font-bold text-slate-800">{decimal}</span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-4xl font-black text-slate-800">{decimal}</span>
+              <span className="text-sm text-slate-400 ml-2">decimal</span>
+            </div>
+            <button
+              onClick={() => setBits(Array(8).fill(0))}
+              className="text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function Quiz() {
+      const [target, setTarget] = useState(() => Math.floor(Math.random() * 256));
+      const [mode, setMode] = useState('d2b');
+      const [bits, setBits] = useState(Array(8).fill(0));
+      const [answer, setAnswer] = useState('');
+      const [checked, setChecked] = useState(false);
+
+      const targetBits = toBits(target);
+
+      const reset = useCallback((newMode) => {
+        setTarget(Math.floor(Math.random() * 256));
+        setBits(Array(8).fill(0));
+        setAnswer('');
+        setChecked(false);
+        if (newMode !== undefined) setMode(newMode);
+      }, []);
+
+      const toggle = i => {
+        if (checked) return;
+        const n = [...bits]; n[i] ^= 1; setBits(n);
+      };
+
+      const isCorrect = mode === 'd2b'
+        ? bits.every((b, i) => b === targetBits[i])
+        : parseInt(answer, 10) === target;
+
+      const feedback = checked && mode === 'd2b'
+        ? bits.map((b, i) => b === targetBits[i])
+        : null;
+
+      return (
+        <div className="space-y-5">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+              {[['d2b', 'Dec → Bin'], ['b2d', 'Bin → Dec']].map(([id, label]) => (
+                <button
+                  key={id}
+                  onClick={() => reset(id)}
+                  className={`px-3 py-1 rounded-md text-xs font-semibold transition-all ${
+                    mode === id ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => reset()} className="text-xs text-indigo-600 hover:underline">
+              New ↺
+            </button>
+          </div>
+
+          {mode === 'd2b' ? (
+            <>
+              <p className="text-lg text-slate-600">
+                Convert{' '}
+                <span className="text-4xl font-black text-indigo-600">{target}</span>
+                {' '}to binary:
+              </p>
+              <BitGrid bits={bits} onToggle={toggle} feedback={feedback} readOnly={checked} />
+            </>
+          ) : (
+            <>
+              <p className="text-lg text-slate-600">
+                What is{' '}
+                <span className="text-3xl font-black text-indigo-600 font-mono">{targetBits.join('')}</span>
+                <sub className="text-sm text-slate-400 ml-0.5">2</sub>
+                {' '}in decimal?
+              </p>
+              <BitGrid bits={targetBits} readOnly />
+              <div className="flex gap-3 items-center">
+                <input
+                  type="number"
+                  value={answer}
+                  onChange={e => !checked && setAnswer(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && answer && !checked && setChecked(true)}
+                  placeholder="Your answer"
+                  disabled={checked}
+                  className="border-2 border-slate-200 rounded-lg px-4 py-2 w-36 text-lg focus:border-indigo-400 outline-none disabled:bg-slate-50"
+                />
+              </div>
+            </>
+          )}
+
+          {!checked ? (
+            <button
+              onClick={() => setChecked(true)}
+              disabled={mode === 'b2d' && !answer}
+              className="bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition disabled:opacity-40"
+            >
+              Check
+            </button>
+          ) : (
+            <div className={`p-4 rounded-xl border-2 ${isCorrect ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+              <p className={`font-bold text-lg ${isCorrect ? 'text-emerald-700' : 'text-red-600'}`}>
+                {isCorrect ? '✓ Correct!' : '✗ Not quite.'}
+              </p>
+              {!isCorrect && (
+                <p className="text-sm text-slate-600 mt-1 font-mono">
+                  {mode === 'd2b'
+                    ? <>{target} = {targetBits.join('')}<sub>2</sub></>
+                    : <>{targetBits.join('')}<sub>2</sub> = {target}</>
+                  }
+                </p>
+              )}
+              <button
+                onClick={() => reset()}
+                className="mt-3 bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    function App() {
+      const [tab, setTab] = useState('dec-bin');
+      const tabs = [['dec-bin', 'Dec → Bin'], ['bin-dec', 'Bin → Dec'], ['quiz', 'Quiz Me']];
+
+      return (
+        <div className="max-w-2xl mx-auto p-6 pt-14">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-slate-800">Binary Converter</h1>
+            <p className="text-xs text-slate-400 uppercase tracking-widest mt-0.5">AP CSP · DAT-1.C</p>
+          </div>
+
+          <div className="flex gap-1 bg-slate-100 p-1 rounded-xl mb-6 w-fit">
+            {tabs.map(([id, label]) => (
+              <button
+                key={id}
+                onClick={() => setTab(id)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  tab === id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+            {tab === 'dec-bin' && <DecToBin />}
+            {tab === 'bin-dec' && <BinToDec />}
+            {tab === 'quiz' && <Quiz />}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

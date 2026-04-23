@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Copy-Item \"H:\\\\networks\\\\ascii\\\\favicon.ico\" \"H:\\\\networks\\\\favicon.ico\")"
+    ]
+  }
+}

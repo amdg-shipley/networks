@@ -24,6 +24,30 @@ export const TOOLS = [
     icon: '⚡'
   },
   {
+    id: 'binary-search',
+    path: '/binary-search/',
+    title: 'Binary Search',
+    tagline: 'Step through the algorithm. Count every comparison.',
+    description: 'Watch binary search eliminate halves one step at a time. Shuffle the array to see why sorted order is required (AAP-2.P.2).',
+    unit: 'Unit 2 — Algorithms & Programming',
+    apConcepts: ['AAP-2.P.a', 'AAP-2.P.b'],
+    status: 'live',
+    color: 'green',
+    icon: '⟨/⟩'
+  },
+  {
+    id: 'binary',
+    path: '/binary/',
+    title: 'Binary Converter',
+    tagline: 'Flip bits. Build number sense.',
+    description: 'Convert decimal to binary step-by-step with place-value breakdowns, toggle bits to build decimal values, and test yourself in quiz mode.',
+    unit: 'Unit 1 — Data & Analysis',
+    apConcepts: ['DAT-1.C'],
+    status: 'live',
+    color: 'blue',
+    icon: '10'
+  },
+  {
     id: 'ascii',
     path: '/ascii/',
     title: 'Binary & Unicode Explorer',
@@ -53,8 +77,8 @@ export const AP_BIG_IDEAS = [
   {
     code: 'BI-3',
     title: 'Algorithms & Programming',
-    eks: ['AAP-1.A', 'AAP-2.A', 'AAP-2.B'],
-    tools: []
+    eks: ['AAP-1.A', 'AAP-2.A', 'AAP-2.B', 'AAP-2.P.a', 'AAP-2.P.b'],
+    tools: ['binary-search']
   },
   {
     code: 'BI-4',
