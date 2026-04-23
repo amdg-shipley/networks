@@ -12,6 +12,18 @@ export const TOOLS = [
     icon: '⬡'
   },
   {
+    id: 'parallel',
+    path: '/parallel/',
+    title: 'Parallel Processing',
+    tagline: 'Why two processors beat one',
+    description: 'Assign processes to processors, run the simulation, and discover why parallel time equals the longest processor total — not the sum.',
+    unit: 'Unit 3 — Networks & the Internet',
+    apConcepts: ['CSN-2.A', 'CSN-2.A.6', 'CSN-2.B', 'CSN-2.B.5'],
+    status: 'live',
+    color: 'blue',
+    icon: '⚡'
+  },
+  {
     id: 'ascii',
     path: '/ascii/',
     title: 'Binary & Unicode Explorer',
@@ -47,8 +59,8 @@ export const AP_BIG_IDEAS = [
   {
     code: 'BI-4',
     title: 'Computer Systems & Networks',
-    eks: ['CSN-1.A', 'CSN-1.B', 'CSN-1.C', 'CSN-1.D', 'CSN-1.E'],
-    tools: ['simulator']
+    eks: ['CSN-1.A', 'CSN-1.B', 'CSN-1.C', 'CSN-1.D', 'CSN-1.E', 'CSN-2.A', 'CSN-2.B'],
+    tools: ['simulator', 'parallel']
   },
   {
     code: 'BI-5',
