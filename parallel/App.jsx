@@ -658,3 +658,191 @@ function App() {
 // ── Mount ──────────────────────────────────────────────────────────────────
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
+  // ... (this finishes the handleSubmit function that was cut off)
+  }
+
+  return (
+    <div className="card exam-card">
+      <div className="card-title">AP EXAM PRACTICE MODE</div>
+      <p style={{ color: '#8a92b2', marginBottom: '1rem' }}>
+        Which of the following processes assignments achieves the minimum parallel execution time?
+      </p>
+      <div className="options-list">
+        {AP_OPTIONS.map((opt) => {
+          let optClass = "option-item";
+          if (selected === opt.key) optClass += " selected";
+          if (submitted) {
+            if (opt.key === CORRECT_ANSWER) optClass += " correct";
+            else if (selected === opt.key) optClass += " incorrect";
+          }
+          return (
+            <button
+              key={opt.key}
+              className={optClass}
+              disabled={submitted}
+              onClick={() => setSelected(opt.key)}
+            >
+              <strong>{opt.key}</strong>: {opt.text}
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        {!submitted ? (
+          <button className="btn-run" onClick={handleSubmit} disabled={!selected}>
+            SUBMIT ANSWER
+          </button>
+        ) : (
+          <div className="feedback-message">
+            {selected === CORRECT_ANSWER ? '✅ Correct! ' : '❌ Incorrect. '}
+            Option B balances the processors best (75s max time).
+          </div>
+        )}
+        <button className="btn-run" style={{ background: '#3a3f5c' }} onClick={onClose}>
+          BACK TO SIMULATOR
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App Component ──────────────────────────────────────────────────────
+
+function App() {
+  const [processes, setProcesses] = useState(DEFAULT_PROCESSES);
+  const [p1Ids, setP1Ids] = useState([]);
+  const [p2Ids, setP2Ids] = useState([]);
+  const [isExamMode, setIsExamMode] = useState(false);
+  const [animating, setAnimating] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const [results, setResults] = useState({ parallelTime: null, speedup: null });
+
+  // Compute unassigned processes
+  const assignedIds = new Set([...p1Ids, ...p2Ids]);
+  const unassignedProcesses = processes.filter(p => !assignedIds.has(p.id));
+
+  const seqTime = useMemo(() => processes.reduce((s, p) => s + p.time, 0), [processes]);
+  const p1Time = useMemo(() => p1Ids.reduce((s, id) => s + (processes.find(p => p.id === id)?.time || 0), 0), [p1Ids, processes]);
+  const p2Time = useMemo(() => p2Ids.reduce((s, id) => s + (processes.find(p => p.id === id)?.time || 0), 0), [p2Ids, processes]);
+
+  const handleRun = () => {
+    setAnimating(true);
+    setAnimKey(prev => prev + 1);
+    
+    // Simulate runtime processing latency
+    setTimeout(() => {
+      const pTime = Math.max(p1Time, p2Time);
+      const sp = (seqTime / pTime).toFixed(2);
+      setResults({ parallelTime: pTime, speedup: sp });
+      setAnimating(false);
+    }, 1500);
+  };
+
+  const handlePillClick = (id) => {
+    // Basic unassign utility when clicked in a lane
+    setP1Ids(prev => prev.filter(i => i !== id));
+    setP2Ids(prev => prev.filter(i => i !== id));
+  };
+
+  // Determine if all processes are assigned to processors
+  const allAssigned = unassignedProcesses.length === 0 && processes.length > 0;
+
+  return (
+    <div className="app-container" style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+      <header style={{ marginBottom: '2rem' }}>
+        <h1 style={{ fontFamily: 'Outfit', color: '#fff', fontSize: '2rem' }}>Parallel Processing Simulator</h1>
+        <p style={{ color: '#8a92b2' }}>AP CSP — Unit 4: Computing Systems and Networks (CSN-2)</p>
+      </header>
+
+      <div className="main-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+        <div className="left-column" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <FormulaBox />
+          
+          {isExamMode ? (
+            <APExamMode isDefault={true} onClose={() => setIsExamMode(false)} />
+          ) : (
+            <div className="card">
+              <div className="card-title" style={{ display: 'flex', justifyContent: 'between', alignItems: 'center', width: '100%' }}>
+                <span>PROCESS POOL</span>
+                <button className="btn-run" style={{ fontSize: '0.8rem', padding: '4px 12px' }} onClick={() => setIsExamMode(true)}>
+                  EXAM MODE
+                </button>
+              </div>
+              <p style={{ color: '#8a92b2', fontSize: '0.9rem', marginBottom: '1rem' }}>
+                Click or drag items to place them into the execution lanes below.
+              </p>
+              <div className="process-pool" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                {unassignedProcesses.map(p => (
+                  <ProcessPill 
+                    key={p.id} 
+                    proc={p} 
+                    onDragStart={(e) => {
+                      e.dataTransfer.setData('processId', p.id);
+                      e.dataTransfer.setData('fromLane', 'pool');
+                    }}
+                    onClick={() => setP1Ids(prev => [...prev, p.id])} 
+                  />
+                ))}
+              </div>
+
+              <div className="lanes-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '1.5rem' }}>
+                <ProcessorLane 
+                  name="Processor 1 (P1)" 
+                  procIds={p1Ids} 
+                  processes={processes} 
+                  total={p1Time}
+                  onPillClick={handlePillClick}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    const id = e.dataTransfer.getData('processId');
+                    setP2Ids(prev => prev.filter(i => i !== id));
+                    if (!p1Ids.includes(id)) setP1Ids(prev => [...prev, id]);
+                  }}
+                />
+                <ProcessorLane 
+                  name="Processor 2 (P2)" 
+                  procIds={p2Ids} 
+                  processes={processes} 
+                  total={p2Time}
+                  onPillClick={handlePillClick}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    const id = e.dataTransfer.getData('processId');
+                    setP1Ids(prev => prev.filter(i => i !== id));
+                    if (!p2Ids.includes(id)) setP2Ids(prev => [...prev, id]);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="right-column" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <SimulationPanel 
+            seqTime={seqTime} 
+            p1Time={p1Time} 
+            p2Time={p2Time} 
+            parallelTime={results.parallelTime} 
+            speedup={results.speedup} 
+            canRun={allAssigned} 
+            onRun={handleRun}
+            animating={animating}
+          />
+          
+          {results.parallelTime && !animating && (
+            <Timeline processes={processes} p1Ids={p1Ids} p2Ids={p2Ids} animKey={animKey} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Bootstrap/Mounting Logic for React 18 ──────────────────────────────────
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(<App />);
+}
+
